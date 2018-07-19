@@ -28,7 +28,7 @@
         <docker.image.suffix></docker.image.suffix>
         <docker.image.from>huksley/oracle-java:8</docker.image.from>
         <maven.git.native>true</maven.git.native>
-        <docker.maven.plugin.version>0.23.0</docker.maven.plugin.version>
+        <docker.maven.plugin.version>0.26.0</docker.maven.plugin.version>
     </properties>
 
     <dependencies>

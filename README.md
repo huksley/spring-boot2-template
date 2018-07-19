@@ -15,6 +15,17 @@ Contains following functionality:
   * Docker build enabled
   * Docker compose setup with everything (TBD)
   
+## Endpoints
+
+  * Application (protectedh) - http://localhost:8087/
+  * Swagger UI - http://localhost:8087/swagger-ui.html
+  * API OpenSchema - http://localhost:8087/swagger.json
+  * Information endpoint (protected) - http://localhost:8087/management/info
+  * Health endpoint (unprotected) - http://localhost:8087/management/health
+  * User info page - http://localhost:8087/auth
+  * Logout - http://localhost:8087/auth/logout
+  * Login form - http://localhost:8087/auth/login
+  
 ## Development
 
 Follow these steps for development environment setup:
