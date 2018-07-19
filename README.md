@@ -13,7 +13,7 @@ Contains following functionality:
   * Web interface is done as VueJS with static build by gulp
   * Sample login and user information forms
   * Docker build enabled
-  * Docker compose setup with everything (TBD)
+  * Docker compose setup with everything 
   
 ## Endpoints
 
@@ -42,5 +42,20 @@ docker run --name postgre -e POSTGRES_PASSWORD=123 -e POSTGRES_USER=user -e POST
 docker run --name redis -p 6379:6379 -d redis redis-server --appendonly yes
 ```
 
+3. Go to src/main/resources/static folder and execute watch to rebuild resources
+
+```bash
+yarn install
+yarn run watch
+```
+
 ## Production deployment
+
+Everything is ready to run as container in Docker Compose setup.
+Execute:
+
+```bash
+mvn package
+docker-compose up -d
+```
 
