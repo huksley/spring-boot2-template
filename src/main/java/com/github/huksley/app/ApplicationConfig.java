@@ -23,6 +23,9 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+/**
+ * Generic application configuration and beans. This file should be in root package.
+ */
 @Configuration
 @EnableAsync
 @EnableScheduling

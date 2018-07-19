@@ -16,7 +16,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 /**
- * Test auth
+ * Test auth (single user with USER and ADMIN role)
  */
 @Component
 @ConditionalOnProperty(name = "auth.type", havingValue = "test", matchIfMissing = true)

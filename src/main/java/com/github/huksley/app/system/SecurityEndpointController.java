@@ -30,7 +30,7 @@ import io.swagger.annotations.ApiOperation;
 
 /**
  * Single entry security endpoint.
- * Provides, auth, css, json for current security state.
+ * Provides web and JSON responses for auth, css, json for current security state.
  */
 @Controller
 @Api(description = "Authentication and login, logout forms.")

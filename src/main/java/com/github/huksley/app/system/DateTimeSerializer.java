@@ -35,8 +35,6 @@ public class DateTimeSerializer extends com.fasterxml.jackson.databind.ser.std.D
         if (_customFormat != null) {
             _customFormat.setTimeZone(TimeZone.getDefault());
         }
-        //log.info("Intermediary2 {} - {}", new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZZZ").format(value));
-        //log.info("Intermediary3 {} - {}", _customFormat.format(value));
         super.serialize(value, gen, provider);
     }
 }

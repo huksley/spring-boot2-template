@@ -124,6 +124,9 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    /**
+     * System authentication. Used during system calls, not associated with user.
+     */
     @Bean
     @Scope("prototype")
     public SystemAuthorityProvider getSystemAuthorityProvider() {
@@ -151,7 +154,6 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     
     public void prepareUsers() {
         String system = env.getProperty("system.user", SYSTEM_USERNAME);
-        
         if (systemUser == null) {
             // Add bootstrap user
             LocalUser u = new LocalUser();
@@ -162,7 +164,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     }
     
     /**
-     * Создать нужные заголовки для вызова API под пользователем системы
+     * Creates JWT header for system auth.
      */
     public RestTemplate createAuthRestTemplate(Object invoker) {
     	String encryptionPassword = env.getProperty("JWT_PASSWORD", env.getProperty("jwt.password"));
@@ -185,22 +187,22 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     	}
     }
 
-    SimpleClientHttpRequestFactory createFactory() {
+    protected SimpleClientHttpRequestFactory createHttpClientFactory() {
         return new SimpleClientHttpRequestFactory() {
             @Override
             protected HttpURLConnection openConnection(URL url, Proxy proxy) throws IOException {
-                String encryptionPassword = env.getProperty("JWT_PASSWORD", env.getProperty("jwt.password"));
-                if (encryptionPassword != null) {
-                    SystemAuthorityProvider p = getSystemAuthorityProvider();
-                    Authentication systemAuthority = p.getSystemAuthority(this);
-                    String tok = createToken(encryptionPassword, systemAuthority, env.getProperty("server.session.timeout", Integer.class, JWT_TOKEN_TIMEOUT) * 1000);
-                    HttpURLConnection conn = super.openConnection(url, proxy);
-                    log.info("Added system auth token for {}", url);
-                    conn.setRequestProperty(HEADER_AUTH, tok);
-                    return conn;
-                } else {
-                    throw new IllegalStateException("JWT authentication not configured!");
-                }
+            String encryptionPassword = env.getProperty("JWT_PASSWORD", env.getProperty("jwt.password"));
+            if (encryptionPassword != null) {
+                SystemAuthorityProvider p = getSystemAuthorityProvider();
+                Authentication systemAuthority = p.getSystemAuthority(this);
+                String tok = createToken(encryptionPassword, systemAuthority, env.getProperty("server.session.timeout", Integer.class, JWT_TOKEN_TIMEOUT) * 1000);
+                HttpURLConnection conn = super.openConnection(url, proxy);
+                log.info("Added system auth token for {}", url);
+                conn.setRequestProperty(HEADER_AUTH, tok);
+                return conn;
+            } else {
+                throw new IllegalStateException("JWT authentication not configured!");
+            }
             }
         };
     }
@@ -212,13 +214,13 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     @Qualifier("systemAuth")
     public RestTemplateBuilder restTemplateBuilder() {
     	RestTemplateBuilder builder = new RestTemplateBuilder();
-    	builder = builder.requestFactory(() -> createFactory());
+    	builder = builder.requestFactory(() -> createHttpClientFactory());
     	log.info("Created systemAuth RestTemplateBuilder: {}", builder);
         return builder;
     }
     
     /**
-     * Создать JWT токен который будет содержать логин (subject) и роли пользователя (payload).
+     * Creates JWT token for specified authentication.
      */
     public String createToken(String secretKey, Authentication auth, long timeout) {
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
@@ -245,7 +247,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     }
     
     /**
-     * Авторизация с помощью токена
+     * Token based authentication.
      */
     public static class TokenAuthentication extends RunAsUserToken {
 		private static final long serialVersionUID = 1L;
@@ -284,7 +286,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     }
     
     /**
-     * Восстанавливает пользователя из JWT токена.
+     * Reconstructs auth from token
      */
     public Authentication restoreToken(String secretKey, String jwt) {
     	String tok = jwt;
@@ -319,7 +321,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     }
    
     /**
-     * Осуществляет установку токена после успешной авторизации вводом имени и пароля.
+     * Reads token from HTTP request.
      */
     @Bean
     @ConditionalOnProperty({ "jwt.password", "JWT_PASSWORD" })
@@ -401,8 +403,8 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     }
     
     /**
-     * Осуществляет прозрачную авторизацию c использованием JWT токена если передали X-Auth-Token.
-     * Должен быть включен в HttpSecurity как addFilterBefore UsernamePasswordAuthentication.
+     * Performs transparent auth using JWT token either passed as X-Auth-Token or cookie.
+     * Must be in HttpSecurity add addFilterBefore UsernamePasswordAuthentication.
      */
     public AbstractAuthenticationProcessingFilter createTokenAuthFilter(ApplicationEventPublisher eventPublisher) {
         String encryptionPassword = env.getProperty("JWT_PASSWORD", env.getProperty("jwt.password"));
@@ -539,7 +541,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     }
     
     /**
-     * Авторизация по принципу - все что не разрешено, все запрещено.
+     * Protect resources. Permit specific endpoints and deny all the rest.
      */
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {

@@ -10,7 +10,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 /**
- * Spring Security implementation which delegates to {@link SecurityAuthenticator} implementation.
+ * Spring Security handler which delegates to {@link SecurityAuthenticator} implementation.
  */
 @Component
 public class SecurityLoginProvider implements AuthenticationProvider {

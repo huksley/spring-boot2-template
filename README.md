@@ -4,9 +4,9 @@ Opinionated Spring Boot 2 template.
 Contains following functionality:
 
   * Spring Boot 2 
-  * Web classic API (not functional)
+  * Web classic API (no webflux, sorry)
   * Actuator enabled (/management/info and /management/health endpoints ONLY)
-  * Redis configured (disabled as cache by default)
+  * Redis configured (but disabled as cache by default)
   * Postgres configured (enabled by default)
   * Swagger2 API docs enabled
   * Spring Security enabled (simple login as test:123)
@@ -14,6 +14,7 @@ Contains following functionality:
   * Sample welcome, login and logout forms
   * Docker build enabled
   * Docker compose setup with everything 
+  * JWT security token generation
   
 ## Endpoints
 

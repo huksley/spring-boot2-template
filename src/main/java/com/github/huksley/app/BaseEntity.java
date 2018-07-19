@@ -31,15 +31,24 @@ import lombok.Data;
 public abstract class BaseEntity implements Serializable {
     private static final long serialVersionUID = 1;
 
+    /**
+     * String based ID
+     */
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid2")
     String id;
 
+    /**
+     * Version of record. Incremented on each update via JPA.
+     */
     @Version
     @Column(name = "version")
     Long version = 1L;
-    
+
+    /**
+     * Date when the record have been created.
+     */
     @Column(name = "created")
 	@CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -48,6 +57,9 @@ public abstract class BaseEntity implements Serializable {
     @JsonSerialize(using = DateTimeSerializer.class)
 	private Date created;
 
+    /**
+     * Date when the record have been updated via JPA.
+     */
 	@Column(name = "updated")
 	@UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
