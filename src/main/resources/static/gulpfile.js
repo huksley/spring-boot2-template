@@ -53,6 +53,7 @@ gulp.task('css', function () {
 });
 
 function jsOne(fname) {
+    console.log('Preprocessing ' + fname);
     // set up the browserify instance on a task basis
     var b = browserify({
         entries: './js/' + fname,
@@ -76,9 +77,9 @@ function jsOne(fname) {
 gulp.task('js', function () {
     console.log("Running js task...");
     try {
-        jsOne('app.js');
-        jsOne('login.js');
-        jsOne('user.js');
+        jsOne('app.js')
+        jsOne('login.js')
+        jsOne('user.js')
     } catch (e) {
         console.log("ERROR running js task: " + e);
     }
@@ -134,9 +135,12 @@ function havefile(f) {
     }
 }
 
-gulp.task('watch', [], function () {
+gulp.task('watch', [ 'js', 'css' ], function () {
     gulp.watch(['./js/*.js'], ['js']);
     gulp.watch(['./scss/*.scss'], ['css']);
+});
+
+gulp.task('build', [ 'js', 'css', 'resources' ], function () {
 });
 
 console.log("Prepared tasks");

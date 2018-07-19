@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>User</title>
         <link rel="icon" href="/favicon.png" type="image/png" />
-        <link href="/generated/app.css" rel="stylesheet" />
+        <link href="/generated/css/app.css" rel="stylesheet" />
         <link href="/auth/css" rel="stylesheet" />
     </head>
 <body style="overflow: hidden">
@@ -14,7 +14,7 @@
         <div class="cell small-1 medium-2 large-2">&nbsp;</div>
         <div class="cell small-10 medium-8 large-8">
             <div class="success top-bar">
-                <div class="top-bar-left">{{ user }}</div>
+                <div class="top-bar-left"><a href="/"><img src="/favicon.png" border="0" width="32" height="32"></a> {{ user }}</div>
                 <div class="top-bar-right">
                     <ul class="menu">
                         <li><a href="/auth/logout" class="button">Logout</a></li>
@@ -25,6 +25,6 @@
     </div>
 
     <script src="/auth/info?var=auth"></script>
-    <script src="/generated/user.js"></script>
+    <script src="/generated/js/user.js"></script>
 </body>
 </html>

@@ -283,8 +283,8 @@
                 <configuration>
                     <installDirectory>target</installDirectory>
                     <workingDirectory>src/main/resources/static</workingDirectory>
-                    <nodeVersion>v8.9.4</nodeVersion>
-                    <npmVersion>5.6.0</npmVersion>
+                    <nodeVersion>v8.11.1</nodeVersion>
+                    <yarnVersion>v1.7.0</yarnVersion>
                 </configuration>
                 <executions>
                     <execution>

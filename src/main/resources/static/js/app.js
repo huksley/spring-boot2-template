@@ -1,5 +1,6 @@
-var Vue = require('vue');
-var foundation = require('foundation-sites');
+const Vue = require('vue');
+const foundation = require('foundation-sites');
+const $ = require('jquery');
 
 // Auth JSON for current user
 var auth = window.auth;
@@ -17,7 +18,9 @@ var auth = window.auth;
 		created: function () {
 		},
 		mounted: function () {
-		},
+            $(this.$el).removeClass("hide");
+            $(this.$el).foundation();
+        },
 		destroyed: function () {
 		}
 	});

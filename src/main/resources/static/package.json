@@ -6,7 +6,8 @@
 		"test": "jest",
         "js": "gulp js",
         "css": "gulp css",
-		"build": "gulp js && gulp sass && gulp resources",
+        "resources": "gulp resources",
+		"build": "gulp build",
 		"watch": "gulp watch"
 	},
 	"dependencies": {
@@ -16,7 +17,8 @@
 		"motion-ui": "^1.2.3",
 		"normalize-scss": "^7.0.0",
 		"requirejs": "^2.3.5",
-		"vue": "^2.5.13"
+		"vue": "^2.5.13",
+		"jquery": "^3.2.1"
 	},
 	"devDependencies": {
         "gulp-sourcemaps": "^2.6.3",
