@@ -285,5 +285,7 @@ generated
 yarn.lock
 yarn-error.log
 src/main/resources/static/vendor/**
-
+src/main/resources/frontend/build
+src/main/resources/frontend/node_modules
+src/main/resources/frontend/yarn.lock
 

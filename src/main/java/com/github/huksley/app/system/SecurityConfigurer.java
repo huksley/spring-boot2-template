@@ -574,8 +574,10 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
             http.authorizeRequests().antMatchers("/auth/**").permitAll();
 
             // Resources
-            http.authorizeRequests().antMatchers("/generated/**").permitAll();
-            http.authorizeRequests().antMatchers("/vendor/**").permitAll();
+            http.authorizeRequests().antMatchers("/static/**").permitAll();
+            http.authorizeRequests().antMatchers("/manifest.json").permitAll();
+            http.authorizeRequests().antMatchers("/asset-manifest.json").permitAll();
+            http.authorizeRequests().antMatchers("/service-worker.js").permitAll();
 
             // Deny all the rest
             http.authorizeRequests().anyRequest().denyAll();

@@ -86,6 +86,8 @@ public class SecurityEndpointController {
 
         String accept = request.getHeader("Accept");
         boolean acceptsForm = accept != null && (accept.indexOf("text/*") >= 0 || accept.indexOf("text/html") >= 0 || accept.indexOf("*/*") >= 0);
+        String xAuth = request.getHeader("X-Auth-Request");
+        acceptsForm = acceptsForm && ("true".equals(xAuth) || "1".equals(xAuth));
         if (!acceptsForm && what == null) {
         	if (auth != null) {
         	    response.sendRedirect("/auth/info");
@@ -93,7 +95,7 @@ public class SecurityEndpointController {
         	    response.sendRedirect("/auth/token");
         	}
         } else
-        if (what != null && what.equals("info")) {
+        if (what != null && (what.equals("info") || (!acceptsForm && what.equals("success")))) {
             String s = "";
             boolean var = false;
             boolean amd = Boolean.parseBoolean(request.getParameter("amd"));
@@ -169,7 +171,7 @@ public class SecurityEndpointController {
             }
             out.write(s);
         } else
-        if (what != null && what.equals("success")) {
+        if (acceptsForm && what != null && what.equals("success")) {
             response.sendRedirect(env.getProperty("forward.login.success", "/auth/"));
         } else
         if (what != null && what.equals("css")) {

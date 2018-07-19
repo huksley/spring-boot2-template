@@ -282,7 +282,7 @@
                 <version>1.6</version>
                 <configuration>
                     <installDirectory>target</installDirectory>
-                    <workingDirectory>src/main/resources/static</workingDirectory>
+                    <workingDirectory>src/main/resources/frontend</workingDirectory>
                     <nodeVersion>v8.11.1</nodeVersion>
                     <yarnVersion>v1.7.0</yarnVersion>
                 </configuration>

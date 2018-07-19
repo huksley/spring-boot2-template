@@ -9,15 +9,15 @@ Contains following functionality:
   * Redis configured (disabled as cache by default)
   * Postgres configured (enabled by default)
   * Swagger2 API docs enabled
-  * Spring Security enabled (test:123)
-  * Web interface is done as VueJS with static build by gulp
-  * Sample login and user information forms
+  * Spring Security enabled (simple login as test:123)
+  * Web interface is done as ReactJS app (create-react-app)
+  * Sample welcome, login and logout forms
   * Docker build enabled
   * Docker compose setup with everything 
   
 ## Endpoints
 
-  * Application (protectedh) - http://localhost:8087/
+  * Application (protected) - http://localhost:8087/
   * Swagger UI - http://localhost:8087/swagger-ui.html
   * API OpenSchema - http://localhost:8087/swagger.json
   * Information endpoint (protected) - http://localhost:8087/management/info
@@ -42,12 +42,23 @@ docker run --name postgre -e POSTGRES_PASSWORD=123 -e POSTGRES_USER=user -e POST
 docker run --name redis -p 6379:6379 -d redis redis-server --appendonly yes
 ```
 
-3. Go to src/main/resources/static folder and execute watch to rebuild resources
+3. Go to src/main/resources/frontend folder and execute watch build UI:
 
 ```bash
 yarn install
-yarn run watch
+yarn run build
 ```
+
+4. Run app in Idea IDE
+
+5. (optional) Better way to develop is to run app and ui along side. All API endpoints are proxied front frontend webpack dev server to backend.
+
+```bash
+cd src/main/resources/frontend
+yarn run start
+```
+
+open http://localhost:3000 and it will be automatically reloaded during modification.
 
 ## Production deployment
 
