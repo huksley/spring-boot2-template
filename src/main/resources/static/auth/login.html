@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login</title>
+    <link rel="icon" href="/favicon.png" type="image/png"/>
+    <link href="/generated/css/login.css" rel="stylesheet"/>
+    <link href="/auth/css" rel="stylesheet"/>
+</head>
+<body style="overflow: hidden">
+
+<div id="body" class="grid-y grid-frame">
+    <div class="cell small-3 medium-3 large-3">&nbsp;</div>
+    <div class="cell small-5 medium-5 large-5">
+
+        <div class="grid-x grid-padding-x align-center">
+            <div class="cell small-4 medium-4 large-4">&nbsp;</div>
+            <div class="cell small-4 medium-4 large-4">
+                <h1>My application</h1>
+            </div>
+            <div class="cell small-4 medium-4 large-4">&nbsp;</div>
+        </div>
+
+        <div class="grid-x">
+            <div class="cell small-4 medium-4 large-4">&nbsp;</div>
+            <div class="cell small-4 medium-4 large-4">
+                <div id="form">
+                    <form action="/auth/authenticate" method="POST" id="login">
+                        <div class="form-group">
+                            <label> Username: <input class="form-control" type="text" name="username"/></label>
+                        </div>
+                        <div class="form-group">
+                            <label> Password: <input class="form-control" type="password" name="password"/></label>
+                        </div>
+                    </form>
+
+                    <button id="button-next" type="button" onClick="forms[0].submit();" class="success button pull-right">Login</button>
+                </div>
+            </div>
+            <div class="cell small-4 medium-4 large-4">&nbsp;</div>
+        </div>
+        <div class="cell small-4 medium-4 large-4">&nbsp;</div>
+    </div>
+</div>
+
+    <script src="/auth/info?var=auth"></script>
+    <script src="/generated/js/login.js"></script>
+</body>
+</html>
