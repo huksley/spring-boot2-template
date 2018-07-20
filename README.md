@@ -23,9 +23,10 @@ Contains following functionality:
   * API OpenSchema - http://localhost:8087/swagger.json
   * Information endpoint (protected) - http://localhost:8087/management/info
   * Health endpoint (unprotected) - http://localhost:8087/management/health
-  * User info page - http://localhost:8087/auth
-  * Logout - http://localhost:8087/auth/logout
-  * Login form - http://localhost:8087/auth/login
+  * UI - http://localhost:8087/
+  * UI (react app) - http://localhost:3000/
+  
+![Screenshots](screenshots.png)
   
 ## Development
 
