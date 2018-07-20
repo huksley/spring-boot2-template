@@ -3,7 +3,7 @@ import './App.css';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUser, faCogs, faSignInAlt, faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
+import { faUser, faCogs, faSignInAlt, faSignOutAlt, faTrash } from '@fortawesome/free-solid-svg-icons'
 
 import { Route, Link as RouteLink, Redirect } from 'react-router-dom';
 
@@ -19,8 +19,10 @@ import {
 import Login from './component/Login'
 import Logout from './component/Logout'
 import Home from './component/Home'
+import Todo from './component/Todo'
+import ProtectedRoute from './component/ProtectedRoute'
 
-library.add(faUser, faCogs, faSignInAlt, faSignOutAlt)
+library.add(faUser, faCogs, faSignInAlt, faSignOutAlt, faTrash)
 
 class App extends Component {
   constructor(props) {
@@ -93,7 +95,7 @@ class App extends Component {
               }} />
 
               <Route exact path="/" render={() => {
-                  return <Home auth={this.state.auth} />
+                  return <Home auth={this.state.auth} authorized={this.authorized()} />
               }} />
 
               <Route path="/login" render={() => {
@@ -103,6 +105,11 @@ class App extends Component {
               <Route path="/logout" render={() => {
                   return <Logout auth={this.state.auth} redirect="/" handler={this.loggedOut} />
               }} />
+
+              { this.authorized() ?
+              <ProtectedRoute path="/todo" authorized={this.authorized()} component={Todo} />
+              : <span/> 
+              }
           </CardBody>
         </Card>
       </div>

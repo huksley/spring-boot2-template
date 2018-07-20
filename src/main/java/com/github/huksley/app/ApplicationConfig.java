@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import java.util.TimeZone;
+
 /**
  * Generic application configuration and beans. This file should be in root package.
  */
@@ -38,6 +40,20 @@ public class ApplicationConfig {
 	@Autowired
 	protected ApplicationEventPublisher publisher;
 
+    /**
+     * Force using UTC timezone throughout the app.
+     * Good for consistent datetime and timezone representation throughout the app.
+     */
+    static {
+        if (!"false".equals(System.getenv("FORCE_UTC"))) {
+            TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        }
+    }
+
+    /**
+     * Listener for every event in Spring Framework,
+     * during development only to understand interesting events to track aftewards
+     */
 	@EventListener
 	protected void onEvent(Object ev) {
 	    if (ev instanceof ServletRequestHandledEvent) {
@@ -51,24 +67,4 @@ public class ApplicationConfig {
     protected void onEvent(ContextClosedEvent ev) {
         log.info("Context stopped {}", ev);
     }
-	
-	@Bean
-	@Primary
-    public ObjectMapper objectMapper() {
-        ObjectMapper om = new ObjectMapper();
-        om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        om.enable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        om.enable(SerializationFeature.INDENT_OUTPUT);
-        om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        return om;
-    }
-	
-	@Bean
-	public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
-	    MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
-	    ObjectMapper objectMapper = new ObjectMapper();
-	    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-	    jsonConverter.setObjectMapper(objectMapper);
-	    return jsonConverter;
-	}
 }

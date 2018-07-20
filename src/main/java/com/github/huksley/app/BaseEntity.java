@@ -1,6 +1,7 @@
 package com.github.huksley.app;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -10,6 +11,11 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -28,6 +34,8 @@ import lombok.Data;
  */
 @MappedSuperclass
 @Data
+@EqualsAndHashCode(exclude = { "version", "created", "updated" })
+@ToString(exclude = { "version", "created", "updated" })
 public abstract class BaseEntity implements Serializable {
     private static final long serialVersionUID = 1;
 
@@ -37,25 +45,26 @@ public abstract class BaseEntity implements Serializable {
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid2")
-    String id;
+    protected String id;
 
     /**
      * Version of record. Incremented on each update via JPA.
      */
     @Version
     @Column(name = "version")
-    Long version = 1L;
+    @JsonIgnore
+    @ApiModelProperty(hidden = true)
+    private Long version = 1L;
 
     /**
-     * Date when the record have been created.
+     * Internal field. Date when the record have been created in database.
      */
     @Column(name = "created")
 	@CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone = "UTC")
-    @JsonDeserialize(using = DateTimeDeserializer.class)
-    @JsonSerialize(using = DateTimeSerializer.class)
-	private Date created;
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ssZZZ", timezone = "UTC")
+    @ApiModelProperty(hidden = true)
+	private Calendar created;
 
     /**
      * Date when the record have been updated via JPA.
@@ -63,8 +72,7 @@ public abstract class BaseEntity implements Serializable {
 	@Column(name = "updated")
 	@UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone = "UTC")
-	@JsonDeserialize(using = DateTimeDeserializer.class)
-    @JsonSerialize(using = DateTimeSerializer.class)
-	private Date updated;
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ssZZZ", timezone = "UTC")
+    @ApiModelProperty(hidden = true)
+	private Calendar updated;
 }

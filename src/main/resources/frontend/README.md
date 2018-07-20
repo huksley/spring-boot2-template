@@ -10,6 +10,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ```bash
 yarn install
+# Make production build
+yarn run build 
+# Start dev server
+yarn run start
 ```
 
 ## Dev run

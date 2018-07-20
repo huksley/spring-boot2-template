@@ -20,11 +20,13 @@ class Root extends React.Component {
   
 ReactDOM.render(<Root />, document.getElementById('root'));
 
-if (config.dev) {
-    // Don`t enable service working to avoid caching
-    // https://goo.gl/KwvDNy
-} else 
-if (config.production) {
-    registerServiceWorker();
+// Allow to disable offline first via config
+if (config.offlineFirst === undefined || config.offlineFirst === true) {
+    if (config.dev) {
+        // Don`t enable service working to avoid caching
+        // https://goo.gl/KwvDNy
+    } else 
+    if (config.production) {
+        registerServiceWorker();
+    }
 }
-

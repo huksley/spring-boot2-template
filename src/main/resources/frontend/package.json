@@ -39,6 +39,9 @@
     },
     "/auth/logout": {
       "target": "http://localhost:8087/"
+    },
+    "/auth/login": {
+      "target": "http://localhost:8087/"
     }
   },
   "scripts": {

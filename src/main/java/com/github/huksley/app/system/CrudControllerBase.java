@@ -3,6 +3,8 @@ package com.github.huksley.app.system;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,11 +16,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.google.common.base.Preconditions;
 
@@ -33,24 +31,26 @@ public abstract class CrudControllerBase<T extends BaseEntity> {
     
     public abstract JpaRepository<T, String> repo(); 
     
-    public T findExample(HttpServletRequest request) {
-        return null;
-    }
-    
-    @ApiOperation("Return list of all objects")
-    @GetMapping(path = { "/list", "/list/" }, produces = "application/json")
-    public List<T> crudList(HttpServletRequest request) {
-        T o = findExample(request);
-        if (o != null) {
-            Example<T> ex = Example.of(o);
-        	return repo().findAll(ex);
+
+    @ApiOperation("Return single object")
+    @GetMapping(path = { "/{id}" }, produces = "application/json")
+    public T crudFindById(String id) {
+        Optional<T> o = repo().findById(id);
+        if (o.isPresent()) {
+            return o.get();
         } else {
-            return repo().findAll();
+            throw new ResourceNotFoundException("id = " + id);
         }
     }
     
+    @ApiOperation("Return list of all objects")
+    @GetMapping(path = { "/list" }, produces = "application/json")
+    public List<T> crudFindAll() {
+        return repo().findAll().stream().sorted((a,b) -> b.getUpdated().compareTo(a.getUpdated())).collect(Collectors.toList());
+    }
+    
     @ApiOperation("Delete object by id")
-    @PostMapping(path = "/delete/{id}", produces = "application/json", consumes = "application/json")
+    @DeleteMapping(path = "/{id}", produces = "application/json", consumes = "application/json")
     public Map<String, Object> crudDelete(@PathVariable("id") String id) {
     	Preconditions.checkNotNull(id);
     	if (repo().findById(id) != null) {
@@ -68,19 +68,20 @@ public abstract class CrudControllerBase<T extends BaseEntity> {
     public T crudAdd(@RequestBody T obj) {
     	Preconditions.checkNotNull(obj);
     	return repo().saveAndFlush(obj);
-    }    
+    }
 
     @ApiOperation("Update object")
     @PatchMapping(path = "/{id}", produces = "application/json", consumes = "application/json")
-    public T crudPost(@PathVariable("id") String id, @RequestBody T update) {
+    public T crudUpdate(@PathVariable("id") String id, @RequestBody T update) {
     	Preconditions.checkNotNull(id);
-    	T saved = repo().findById(id).get();
-    	if (saved != null) {
-        	BeanUtils.copyProperties(update, saved, "id", "created", "updated", "version");
-        	saved = repo().saveAndFlush(saved);
-        	return saved;
+    	Preconditions.checkState(update.getId() == null || update.getId().equals(id));
+    	Optional<T> existing = repo().findById(id);
+    	if (existing.isPresent()) {
+        	BeanUtils.copyProperties(update, existing.get(), "id", "created", "updated", "version");
+        	T updated = repo().saveAndFlush(existing.get());
+        	return updated;
     	} else {
     	    throw new ResourceNotFoundException("id = " + id);
     	}
-    }    
+    }
 }

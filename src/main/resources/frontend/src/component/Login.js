@@ -58,6 +58,9 @@ export default class Login extends Component {
       })
       .then(data => {
         console.log("Got data", data)
+        if (!data) {
+          this.setState({ error: "Invalid response from server" })
+        } else
         if (data.error) {
           this.setState({ error: data.error })
         } else {

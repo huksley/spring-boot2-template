@@ -557,6 +557,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
             http.authorizeRequests().antMatchers("/index.html").permitAll();
             http.authorizeRequests().antMatchers("/robots.txt").permitAll();
             http.authorizeRequests().antMatchers("/favicon.png").permitAll();
+            http.authorizeRequests().antMatchers("/favicon.ico").permitAll();
     
             // Swagger UI
             http.authorizeRequests().antMatchers("/swagger-ui.html").permitAll();
