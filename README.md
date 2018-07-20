@@ -26,7 +26,7 @@ Contains following functionality:
   * UI - http://localhost:8087/
   * UI (react app) - http://localhost:3000/
   
-![Screenshots](screenshots.png)
+![Screenshots](screenshot.png)
   
 ## Development
 
