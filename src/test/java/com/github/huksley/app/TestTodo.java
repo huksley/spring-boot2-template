@@ -88,6 +88,6 @@ public class TestTodo {
         Assert.assertNotNull(todos.contains(found));
 
         log.info("Added through API: {}", todoApi.crudAdd(Todo.builder().done(false).description("Added through API").build()));
-        log.info("Updated through API: {}", todoApi.crudUpdate(found.id, Todo.builder().description("New description").build()));
+        log.info("Updated through API: {}", todoApi.crudUpdate(found.id, Todo.builder().done(found.getDone()).doneTime(found.getDoneTime()).description("New description").build()));
     }
 }
