@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -40,6 +41,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -58,9 +60,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
@@ -587,6 +587,22 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
         }
             
         http.formLogin().loginPage("/auth/login");
+
+        // Override failure forwarding logic so we have query parameter with type of error
+        // error=BadCredentials|CredentialsExpired|?
+        String failureUrl = "/auth/login?error";
+        http.formLogin().failureUrl(failureUrl);
+        http.formLogin().failureHandler(new SimpleUrlAuthenticationFailureHandler() {
+                public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+                    String errorType = exception.getClass().getSimpleName();
+                    errorType = errorType.replace("Exception", "");
+                    String url = failureUrl + "=" + errorType;
+                    this.logger.debug("Redirecting to " + url);
+                    this.getRedirectStrategy().sendRedirect(request, response, url);
+
+                }
+            });
+
         http.formLogin().loginProcessingUrl("/auth/authenticate");
         http.formLogin().defaultSuccessUrl("/auth/success", true);
         http.addFilterBefore(createTokenAuthFilter(eventPublisher), UsernamePasswordAuthenticationFilter.class);
@@ -602,4 +618,45 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 				}
 			});
 	}
+
+	static public class ExtendedWebAuthenticationDetails extends WebAuthenticationDetails {
+        HttpServletRequest request;
+
+	    public ExtendedWebAuthenticationDetails(HttpServletRequest request) {
+            super(request);
+            this.request = request;
+        }
+
+        public HttpServletRequest getRequest() {
+            return request;
+        }
+    }
+
+    /**
+     * Provides request in auth details
+     * https://docs.spring.io/spring-security/site/faq/faq.html#faq-request-details-in-user-service
+     */
+	static public class AuthDetailsBeanPostProcessor implements BeanPostProcessor {
+        public Object postProcessAfterInitialization(Object bean, String name) {
+            if (bean instanceof UsernamePasswordAuthenticationFilter) {
+                UsernamePasswordAuthenticationFilter upaf = ((UsernamePasswordAuthenticationFilter) bean);
+                upaf.setAuthenticationDetailsSource(new WebAuthenticationDetailsSource() {
+                    @Override
+                    public WebAuthenticationDetails buildDetails(HttpServletRequest context) {
+                        return new ExtendedWebAuthenticationDetails(context);
+                    }
+                });
+            }
+            return bean;
+        }
+
+        public Object postProcessBeforeInitialization(Object bean, String name) {
+            return bean;
+        }
+    }
+
+    @Bean
+    public static AuthDetailsBeanPostProcessor authDetailsBeanPostProcessor() {
+        return new AuthDetailsBeanPostProcessor();
+    }
 }
