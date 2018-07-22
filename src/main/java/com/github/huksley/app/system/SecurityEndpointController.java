@@ -54,7 +54,7 @@ public class SecurityEndpointController {
     public void auth(HttpServletRequest request, HttpServletResponse response) throws IOException {
         SecurityContext ctx = SecurityContextHolder.getContext();
         Authentication auth = (Authentication) request.getUserPrincipal();
-        String authType = env.getProperty("PROCESS_AUTH", "test");
+        String authType = env.getProperty("auth.type", "test");
 
         // Obtain current request token
         String token = request.getHeader(SecurityConfigurer.HEADER_AUTH);
@@ -136,7 +136,12 @@ public class SecurityEndpointController {
                 } else {
                     s += "\"error\": null,\n";
                 }
-                
+
+                if (last != null) {
+                    s += "\"errorType\": \"" + last.getClass().getSimpleName().replace("Exception", "") + "\",\n";
+                }
+
+                // FIXME: insecure
                 Throwable cause = last != null && last.getCause() != null ? last.getCause() : last;
                 if (cause != null) {
                     s += "\"errorException\": \"" + cause.toString() +  "\",\n";
@@ -208,6 +213,12 @@ public class SecurityEndpointController {
                 response.sendRedirect("/auth/login");
             }
         } else
+        if (!acceptsForm && what.equals("login") && (request.getQueryString() != null && request.getQueryString().startsWith("error"))) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not authorized");
+            response.setContentType("application/json");
+            response.getWriter().write("{ \"error\": \"Not authorized\" }");
+            response.flushBuffer();
+        } else
         if (acceptsForm && what.equals("login")) {
             String s = null;
         	try (InputStream is = getClass().getResourceAsStream("/static/auth/login.html")) {
@@ -224,8 +235,9 @@ public class SecurityEndpointController {
             response.getWriter().write("{ \"success\": true }");
             response.flushBuffer();
         } else {
+            // Unknown, unhandled URL
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not authorized");
-            response.setContentType("application/javascript");
+            response.setContentType("application/json");
             response.getWriter().write("{ \"error\": \"Not authorized\" }");
             response.flushBuffer();
         }
