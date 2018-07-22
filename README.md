@@ -3,18 +3,20 @@
 Opinionated Spring Boot 2 template.
 Contains following functionality:
 
+  * Java 8 Oracle JDK (base image https://hub.docker.com/r/huksley/oracle-java/)
   * Spring Boot 2 
   * Web classic API (no webflux, sorry)
   * Actuator enabled (/management/info and /management/health endpoints ONLY)
   * Redis configured (but disabled as cache by default)
   * Postgres configured (enabled by default)
-  * Swagger2 API docs enabled
-  * Spring Security enabled (simple login as test:123)
+  * Swagger2 API docs enabled (Swagger UI)
+  * Spring Security enabled (Simple login as test:123)
   * Web interface is done as ReactJS app (create-react-app)
   * Sample welcome, login and logout forms
-  * Docker build enabled
-  * Docker compose setup with everything 
-  * JWT security token generation
+  * Sample Todo CRUD
+  * Docker build (mvn package creates docker image) 
+  * Docker compose setup with everything (launches redis, postgres, app)
+  * JWT security token generation (to call apps with the same stack)
   
 ## Endpoints
 
@@ -71,4 +73,8 @@ Execute:
 mvn package
 docker-compose up -d
 ```
+
+## Configurable variables
+
+Look for a list of configurable variables in docker-compose.yml
 
