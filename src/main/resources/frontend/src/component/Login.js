@@ -40,6 +40,7 @@ export default class Login extends Component {
       return;
     }
 
+    var responseUrl = null;
     const body = "username=" + this.state.username + "&password=" + this.state.password;
     fetch("/auth/authenticate", {
       method: "POST",
@@ -51,13 +52,13 @@ export default class Login extends Component {
       },
       body: body
     })
-      .then(response => response.json()) // parses response to JSON
+      .then(response => { responseUrl = response.url; return response.json() }) // parses response to JSON
       .catch(error => {
         console.error(`Fetch Error =\n`, error);
         this.setState({ error: error.message });
       })
       .then(data => {
-        console.log("Got data", data)
+        console.log("Got data from url " + responseUrl, data)
         if (!data) {
           this.setState({ error: "Invalid response from server" })
         } else
