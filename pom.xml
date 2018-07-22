@@ -29,6 +29,7 @@
         <docker.image.from>huksley/oracle-java:8</docker.image.from>
         <maven.git.native>true</maven.git.native>
         <docker.maven.plugin.version>0.26.0</docker.maven.plugin.version>
+        <docker.buildArg.JAVA_BINARY>/usr/bin/java-app</docker.buildArg.JAVA_BINARY>
     </properties>
 
     <dependencies>
