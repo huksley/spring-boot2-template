@@ -20,11 +20,11 @@ Contains following functionality:
 
   * Application (protected) - http://localhost:8087/
   * Swagger UI - http://localhost:8087/swagger-ui.html
-  * API OpenSchema - http://localhost:8087/swagger.json
+  * API OpenSchema - http://localhost:8087/v2/api-docs
   * Information endpoint (protected) - http://localhost:8087/management/info
   * Health endpoint (unprotected) - http://localhost:8087/management/health
   * UI - http://localhost:8087/
-  * UI (react app) - http://localhost:3000/
+  * UI (react app, dev run) - http://localhost:3000/
   
 ![Screenshots](screenshot.png)
   
