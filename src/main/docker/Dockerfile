@@ -1,5 +1,5 @@
 FROM ${docker.image.from}
-EXPOSE 9090
+EXPOSE 8087
 VOLUME /tmp
 ADD maven/target/${project.artifactId}-exec.jar app.jar
 ADD wait-for /wait-for
