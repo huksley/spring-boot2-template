@@ -32,8 +32,12 @@ export default class Todo extends Component {
         this.setState({ error: error.message });
       })
       .then(data => {
-        console.log("Got data", data)
-        this.setState({ todos: data })
+        if (data.error) {
+          this.setState({ error: data.error });
+        } else {
+          console.log("Got data", data)
+          this.setState({ todos: data })
+        }
       });
   }
 
@@ -124,6 +128,7 @@ export default class Todo extends Component {
     return (
       <div className="container-fluid">
         <h4>List of todos</h4>
+        { this.state.error ? <div className="alert alert-danger">{this.state.error}</div> : ""}
         <div class="row">
           <div class="col-sm">
             &nbsp;
