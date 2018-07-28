@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
  * Test auth (single user with USER and ADMIN role)
  */
 @Component
-@ConditionalOnProperty(name = "auth.type", havingValue = "test", matchIfMissing = true)
+@ConditionalOnProperty(name = "security.auth.type", havingValue = "test", matchIfMissing = true)
 public class SecurityAuthenticatorTest implements SecurityAuthenticator {
 	Logger log = LoggerFactory.getLogger(getClass());
 	
@@ -33,9 +33,9 @@ public class SecurityAuthenticatorTest implements SecurityAuthenticator {
         log.info("Logging in {}", name);
         Authentication auth = null;
         
-        String testUser = env.getProperty("test.user", "test");
-        String testPassword = env.getProperty("test.password", "123");
-        String testRoles = env.getProperty("test.password", "USER,ADMIN");
+        String testUser = env.getProperty("security.auth.test.user", "test");
+        String testPassword = env.getProperty("security.auth.test.password", "123");
+        String testRoles = env.getProperty("security.auth.test.roles", "USER,ADMIN");
         
         if (name.equals(testUser) && password.equals(testPassword)) {
         	ArrayList<GrantedAuthority> roles = new ArrayList<>();

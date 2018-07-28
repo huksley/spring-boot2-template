@@ -90,14 +90,14 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     private static final String SYSTEM_USERNAME = "system";
 
     Logger log = LoggerFactory.getLogger(getClass());
-    
+
     public static final String HEADER_AUTH = "X-Auth-Token";
     public static final String COOKIE_AUTH = "AuthToken";
     public static final String ROLE_PREFIX = "ROLE_";
     public static final String ROLE_AUTH_TOKEN = "ROLE_AUTH_TOKEN";
     public static final String ROLE_AUTH_SYSTEM = "ROLE_AUTH_SYSTEM";
     public static final String ROLE_AUTH_PASSWORD = "ROLE_AUTH_PASSWORD";
-    
+
     @Autowired
     ApplicationEventPublisher eventPublisher;
     
@@ -109,13 +109,12 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
         private String login;
         private List<String> roles;
     }
-    
+
     LocalUser systemUser;
     
     @EventListener
     public void onApplicationReady(ApplicationReadyEvent ev) {
         MDC.def().log(log).info("Application ready {}", ev);
-        prepareUsers();
     }
 
     @Bean
@@ -130,18 +129,18 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     @Bean
     @Scope("prototype")
     public SystemAuthorityProvider getSystemAuthorityProvider() {
-        return new SystemAuthorityProvider() {          
+        return new SystemAuthorityProvider() {
             @Override
             public Authentication getSystemAuthority(Object invoker) {
                 LocalUser u = systemUser;
-                if (u != null) {            
+                if (u != null) {
                     ArrayList<GrantedAuthority> roles = new ArrayList<>();
                     for (String r: u.getRoles()) {
                         roles.add(new SimpleGrantedAuthority(ROLE_PREFIX + r));
                     }
-                    
+
                     // Add role to indicate user trust
-                    roles.add(new SimpleGrantedAuthority(ROLE_AUTH_SYSTEM));            
+                    roles.add(new SimpleGrantedAuthority(ROLE_AUTH_SYSTEM));
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(u.getLogin(), "[IMPLIED]", roles);
                     MDC.def().log(log).info("Prepared {} for {}", auth, invoker);
                     return auth;
@@ -151,74 +150,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
             }
         };
     }
-    
-    public void prepareUsers() {
-        String system = env.getProperty("system.user", SYSTEM_USERNAME);
-        if (systemUser == null) {
-            // Add bootstrap user
-            LocalUser u = new LocalUser();
-            u.setLogin(system);
-            u.setRoles(new ArrayList<>(Arrays.asList(env.getProperty("system.roles", SYSTEM_ROLES).split("\\,[ ]*"))));
-            systemUser = u;
-        }
-    }
-    
-    /**
-     * Creates JWT header for system auth.
-     */
-    public RestTemplate createAuthRestTemplate(Object invoker) {
-    	String encryptionPassword = env.getProperty("JWT_PASSWORD", env.getProperty("jwt.password"));
-    	if (encryptionPassword != null) {
-    	    SystemAuthorityProvider p = getSystemAuthorityProvider();
-            Authentication systemAuthority = p.getSystemAuthority(this);
-			String tok = createToken(encryptionPassword, systemAuthority, env.getProperty("server.session.timeout", Integer.class, JWT_TOKEN_TIMEOUT) * 1000);
-	    	RestTemplate rest = new RestTemplate(new SimpleClientHttpRequestFactory() {
-	    		@Override
-	    		protected HttpURLConnection openConnection(URL url, Proxy proxy) throws IOException {
-	    			HttpURLConnection conn = super.openConnection(url, proxy);
-	    			log.info("Added system auth token for {}, invoker {}", url, invoker);
-	    			conn.setRequestProperty(HEADER_AUTH, tok);
-					return conn;
-	    		}
-	    	});
-	    	return rest;
-    	} else {
-    		throw new IllegalStateException("JWT authentication not configured!");
-    	}
-    }
 
-    protected SimpleClientHttpRequestFactory createHttpClientFactory() {
-        return new SimpleClientHttpRequestFactory() {
-            @Override
-            protected HttpURLConnection openConnection(URL url, Proxy proxy) throws IOException {
-            String encryptionPassword = env.getProperty("JWT_PASSWORD", env.getProperty("jwt.password"));
-            if (encryptionPassword != null) {
-                SystemAuthorityProvider p = getSystemAuthorityProvider();
-                Authentication systemAuthority = p.getSystemAuthority(this);
-                String tok = createToken(encryptionPassword, systemAuthority, env.getProperty("server.session.timeout", Integer.class, JWT_TOKEN_TIMEOUT) * 1000);
-                HttpURLConnection conn = super.openConnection(url, proxy);
-                log.info("Added system auth token for {}", url);
-                conn.setRequestProperty(HEADER_AUTH, tok);
-                return conn;
-            } else {
-                throw new IllegalStateException("JWT authentication not configured!");
-            }
-            }
-        };
-    }
-
-    /**
-     * Creates RestTemplateBuilder with system auth enabled.
-     */
-    @Bean
-    @Qualifier("systemAuth")
-    public RestTemplateBuilder restTemplateBuilder() {
-    	RestTemplateBuilder builder = new RestTemplateBuilder();
-    	builder = builder.requestFactory(() -> createHttpClientFactory());
-    	log.info("Created systemAuth RestTemplateBuilder: {}", builder);
-        return builder;
-    }
-    
     /**
      * Creates JWT token for specified authentication.
      */
@@ -245,7 +177,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
         String jwt = builder.compact();
         return jwt + ":" + exp;
     }
-    
+
     /**
      * Token based authentication.
      */
@@ -256,12 +188,12 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     	 * TTL (ms)
     	 */
     	private final long expiration;
-    	
+
     	/**
     	 * JWT token
     	 */
     	private final String token;
-    	
+
 		public TokenAuthentication(String login, Collection<? extends GrantedAuthority> authorities, long expiration, String token) {
 			super(login, login, null, authorities, null);
 			this.expiration = expiration;
@@ -284,7 +216,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 			conn.setRequestProperty(HEADER_AUTH, token);
 		}
     }
-    
+
     /**
      * Reconstructs auth from token
      */
@@ -309,17 +241,17 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 authorities.add(new SimpleGrantedAuthority(role));
             }
         }
-        
+
         // Add token role
         SimpleGrantedAuthority authToken = new SimpleGrantedAuthority(ROLE_AUTH_TOKEN);
         if (!authorities.contains(authToken)) {
         	authorities.add(authToken);
         }
-        
+
         RunAsUserToken auth = new TokenAuthentication(token.getSubject(), authorities, exp, jwt);
         return auth;
     }
-   
+
     /**
      * Reads token from HTTP request.
      */
@@ -327,23 +259,23 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     @ConditionalOnProperty({ "jwt.password", "JWT_PASSWORD" })
     public FilterRegistrationBean createTokenUpdate() {
         String encryptionPassword = env.getProperty("JWT_PASSWORD", env.getProperty("jwt.password"));
-        
+
         Filter f = new Filter() {
             Logger log = LoggerFactory.getLogger(getClass());
-        
+
             public void init(FilterConfig config) throws ServletException {
             }
-    
+
             public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws java.io.IOException, ServletException {
                 HttpServletRequest request = (HttpServletRequest) req;
                 HttpServletResponse response = (HttpServletResponse) resp;
                 Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-                
+
                 if (auth != null && !(auth instanceof AnonymousAuthenticationToken) && response != null) {
                 	SimpleGrantedAuthority authToken = new SimpleGrantedAuthority(ROLE_AUTH_TOKEN);
                 	if (auth.getAuthorities().contains(authToken)) {
                 		// Don`t create token for Token auth
-                	} else {                	
+                	} else {
 	                	String cookieToken = null;
 	                	Cookie[] cl = request.getCookies();
 	                	if (cl != null) {
@@ -354,9 +286,9 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 	                			}
 	                		}
 	                	}
-	                	
+
 	                	String headerToken = request.getHeader(HEADER_AUTH);
-	                	
+
 	                	boolean tokenExpired = false;
 	                	if (headerToken != null && headerToken.indexOf(":") > 0) {
 							long exp = Long.parseLong(headerToken.substring(headerToken.indexOf(":") + 1));
@@ -387,7 +319,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 	                	}
                 	}
                 }
-                
+
                 chain.doFilter(request, response);
             }
 
@@ -401,18 +333,18 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
         reg.setUrlPatterns(Collections.singleton("/auth/success"));
         return reg;
     }
-    
+
     /**
      * Performs transparent auth using JWT token either passed as X-Auth-Token or cookie.
      * Must be in HttpSecurity add addFilterBefore UsernamePasswordAuthentication.
      */
     public AbstractAuthenticationProcessingFilter createTokenAuthFilter(ApplicationEventPublisher eventPublisher) {
         String encryptionPassword = env.getProperty("JWT_PASSWORD", env.getProperty("jwt.password"));
-        
+
         AbstractAuthenticationProcessingFilter f = new AbstractAuthenticationProcessingFilter(new AntPathRequestMatcher("/**")) {
             @Override
             protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
-            	Authentication auth = SecurityContextHolder.getContext().getAuthentication(); 
+            	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
                 if ((auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) && encryptionPassword != null && super.requiresAuthentication(request, response)) {
                     String tok = request.getHeader(HEADER_AUTH);
 					if (tok == null) {
@@ -426,7 +358,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 	                        }
                         }
                     }
-					
+
 					if (tok != null) {
 						// Don`t accept expired tokens
 						if (tok.indexOf(":") > 0) {
@@ -441,24 +373,24 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 								return false;
 							}
 						}
-						
+
 						return true;
 					}
                 }
-                
+
                 return false;
             }
-            
+
             @Override
             public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
                 SecurityContext ctx = SecurityContextHolder.getContext();
                 if (ctx == null) {
                     throw new NullPointerException("ctx");
                 }
-                
+
                 String jwt = request.getHeader(HEADER_AUTH);
                 boolean cookie = false;
-                
+
                 if (jwt == null) {
                     Cookie[] ckl = request.getCookies();
                     if (ckl != null) {
@@ -471,7 +403,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 	                    }
                     }
                 }
-                
+
                 log.info("Attempting token auth {} existing auth {}", jwt, ctx.getAuthentication());
                 if (jwt != null) {
                     try {
@@ -479,7 +411,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                         log.info("Successfull token auth {}", auth.getName());
                         return auth;
                     } catch (ExpiredJwtException e) {
-                        // Срок действия токена истек
+                        // Expired token (determined by JWT)
                     	if (cookie) {
 	                    	Cookie ck = new Cookie(COOKIE_AUTH, "");
 		                    ck.setPath("/");
@@ -489,7 +421,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                     	// FIXME: Redirect to login?
                         throw new CredentialsExpiredException(e.getMessage(), e);
                     } catch (JwtException e) {
-                        // Любая другая ошибка (неправильный формат?)
+                        // Wrong token format, encryption?
                     	if (cookie) {
 	                    	Cookie ck = new Cookie(COOKIE_AUTH, "");
 		                    ck.setPath("/");
@@ -510,14 +442,14 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 chain.doFilter(request, response);
             }
         };
-        
+
         f.setAuthenticationSuccessHandler(new AuthenticationSuccessHandler() {
             @Override
             public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
                 eventPublisher.publishEvent(new AuthenticationSuccessEvent(authentication));
             }
         });
-        
+
         // We will call later chain.doFilter() AFTER auth
         f.setContinueChainBeforeSuccessfulAuthentication(false);
         // Generates InteractiveAuthenticationSuccessEvent but we generate our own AuthenticationSuccessEvent
@@ -534,7 +466,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
             throw new IllegalStateException("Can`t get authenticationManagerBean: " + e, e);
         }
     }
-    
+
     @EventListener
     public void onSuccessLogin(AuthenticationSuccessEvent ev) {
         log.info("Authenticated: {}", ev.getAuthentication());
@@ -552,35 +484,33 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
             // Permit all, no auth needed
             http.authorizeRequests().anyRequest().permitAll();
         } else {
-    	    // Static resources
+    	    // Frontend resources
             http.authorizeRequests().antMatchers("/").permitAll();
             http.authorizeRequests().antMatchers("/index.html").permitAll();
             http.authorizeRequests().antMatchers("/robots.txt").permitAll();
             http.authorizeRequests().antMatchers("/favicon.png").permitAll();
             http.authorizeRequests().antMatchers("/favicon.ico").permitAll();
+            http.authorizeRequests().antMatchers("/static/**").permitAll();
+            http.authorizeRequests().antMatchers("/manifest.json").permitAll();
+            http.authorizeRequests().antMatchers("/asset-manifest.json").permitAll();
+            http.authorizeRequests().antMatchers("/service-worker.js").permitAll();
     
             // Swagger UI
             http.authorizeRequests().antMatchers("/swagger-ui.html").permitAll();
             http.authorizeRequests().antMatchers("/webjars/**").permitAll();
             http.authorizeRequests().antMatchers("/webjars-locator.js").permitAll();
             http.authorizeRequests().antMatchers("/swagger-resources/**").permitAll();
-            http.authorizeRequests().antMatchers("/v2/api-docs").permitAll();
+            http.authorizeRequests().antMatchers("/api/openapi.json").permitAll();
     	    
     	    // Management
     	    http.authorizeRequests().antMatchers("/management/health").permitAll();
             http.authorizeRequests().antMatchers("/management/**").hasAnyAuthority("ROLE_ADMIN");
-            
-            http.authorizeRequests().antMatchers("/api/**").hasAnyAuthority("ROLE_USER");
-            http.authorizeRequests().antMatchers("/system/**").hasAnyAuthority("ROLE_USER");
-            
-            // Auth single endpoint
-            http.authorizeRequests().antMatchers("/auth/**").permitAll();
 
-            // Resources
-            http.authorizeRequests().antMatchers("/static/**").permitAll();
-            http.authorizeRequests().antMatchers("/manifest.json").permitAll();
-            http.authorizeRequests().antMatchers("/asset-manifest.json").permitAll();
-            http.authorizeRequests().antMatchers("/service-worker.js").permitAll();
+            // API access
+            http.authorizeRequests().antMatchers("/api/**").hasAnyAuthority("ROLE_USER");
+            
+            // Auth flexible endpoint
+            http.authorizeRequests().antMatchers("/auth/**").permitAll();
 
             // Deny all the rest
             http.authorizeRequests().anyRequest().denyAll();

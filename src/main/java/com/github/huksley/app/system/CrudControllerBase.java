@@ -16,6 +16,8 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.google.common.base.Preconditions;
@@ -67,7 +69,9 @@ public abstract class CrudControllerBase<T extends BaseEntity> {
     @PostMapping(path = "/", produces = "application/json", consumes = "application/json")
     public T crudAdd(@RequestBody T obj) {
     	Preconditions.checkNotNull(obj);
-    	return repo().saveAndFlush(obj);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Preconditions.checkNotNull(auth);
+        return repo().saveAndFlush(obj);
     }
 
     @ApiOperation("Update object")

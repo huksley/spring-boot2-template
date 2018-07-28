@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
  * Authentication via db
  */
 @Component
-@ConditionalOnProperty(name = "auth.type", havingValue = "db", matchIfMissing = false)
+@ConditionalOnProperty(name = "security.auth.type", havingValue = "db", matchIfMissing = false)
 public class SecurityAuthenticatorDatabase implements SecurityAuthenticator {
 	Logger log = LoggerFactory.getLogger(getClass());
 	
@@ -37,13 +37,13 @@ public class SecurityAuthenticatorDatabase implements SecurityAuthenticator {
 	@Autowired
 	JdbcTemplate jdbc;
 	
-	@Value("${auth.db.query:null}")
+	@Value("${security.auth.db.query:null}")
 	String userQuery = null;
 	
-	@Value("${auth.db.column.password:'password'}")
+	@Value("${security.auth.db.column.password:'password'}")
 	String passwordColumn = "password";
 	
-	@Value("${auth.db.column.locked:null}")
+	@Value("${security.auth.db.column.locked:null}")
 	String lockedColumn = null;
 	
 	@Autowired(required = false)

@@ -289,3 +289,5 @@ src/main/resources/frontend/build
 src/main/resources/frontend/node_modules
 src/main/resources/frontend/yarn.lock
 
+/h2-dbs.trace.db
+/h2-dbs.mv.db

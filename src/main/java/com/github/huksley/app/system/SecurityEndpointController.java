@@ -54,7 +54,7 @@ public class SecurityEndpointController {
     public void auth(HttpServletRequest request, HttpServletResponse response) throws IOException {
         SecurityContext ctx = SecurityContextHolder.getContext();
         Authentication auth = (Authentication) request.getUserPrincipal();
-        String authType = env.getProperty("auth.type", "test");
+        String authType = env.getProperty("security.auth.type", "test");
 
         // Obtain current request token
         String token = request.getHeader(SecurityConfigurer.HEADER_AUTH);
@@ -76,7 +76,10 @@ public class SecurityEndpointController {
         response.setContentType("text/html");
 
         PrintWriter out = response.getWriter();
-        String what = request.getServletPath();
+        String what = request.getPathInfo();
+        if (what == null || what.equals("")) {
+            what = request.getServletPath();
+        }
         if (what != null && (what.equals("/auth") || what.equals("/auth/"))) {
             what = null;
         } else

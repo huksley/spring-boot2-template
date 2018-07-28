@@ -22,7 +22,7 @@ Contains following functionality:
 
   * Application (protected) - http://localhost:8087/
   * Swagger UI - http://localhost:8087/swagger-ui.html
-  * API OpenSchema - http://localhost:8087/v2/api-docs
+  * API OpenSchema - http://localhost:8087/api/openapi.json
   * Information endpoint (protected) - http://localhost:8087/management/info
   * Health endpoint (unprotected) - http://localhost:8087/management/health
   * UI - http://localhost:8087/

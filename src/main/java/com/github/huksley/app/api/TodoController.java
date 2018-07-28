@@ -38,6 +38,14 @@ public class TodoController extends CrudControllerBase<Todo> {
         return repo;
     }
 
+    /**
+     * Declare overrides for methods to be secured by @{@link Secured} by annotation above
+     */
+    @Override
+    public Todo crudAdd(Todo obj) {
+        return super.crudAdd(obj);
+    }
+
     @ApiOperation("Filter")
     @GetMapping(path = { "/filter" }, produces = "application/json")
     public List<Todo> crudFilter(@RequestParam(required = false) Boolean completedToday, @RequestParam(required = false) Boolean completed) {
