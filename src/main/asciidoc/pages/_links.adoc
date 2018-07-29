@@ -1,5 +1,0 @@
-
-= Links
-
-* https://spring.io/projects/spring-boot[Spring Boot2]
-* https://start.spring.io/[Spring Initializr]
