@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-#mvn -Pdoc-html
+mvn -Pdoc-html
 if [ ! -d gh-pages ]; then
 	git clone -b gh-pages https://github.com/huksley/spring-boot2-template.git gh-pages
 fi
