@@ -16,7 +16,7 @@ Contains following functionality:
   * Sample Todo CRUD
   * Docker build (mvn package creates docker image) 
   * Docker compose setup with everything (launches redis, postgres, app)
-  * JWT security token generation (to call apps with the same stack)
+  * JWT based external call/command line compatible auth
   
 ## Endpoints
 
