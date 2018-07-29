@@ -130,10 +130,10 @@ export default class Todo extends Component {
         <h4>List of todos</h4>
         { this.state.error ? <div className="alert alert-danger">{this.state.error}</div> : ""}
         <div class="row">
-          <div class="col-sm">
+          <div class="col-sm col-md">
             &nbsp;
           </div>
-          <div class="col-sm">
+          <div class="col-sm col-md">
             <Table striped>
             <tbody>
 
@@ -157,7 +157,7 @@ export default class Todo extends Component {
             </tbody>
             </Table>
           </div>
-          <div class="col-sm">
+          <div class="col-sm col-md">
             &nbsp;
           </div>
         </div>
