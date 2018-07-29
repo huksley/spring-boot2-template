@@ -2,7 +2,7 @@
 set -e
 mvn -Pdoc-html
 if [ ! -d gh-pages ]; then
-	git clone -b gh-pages https://github.com/huksley/spring-boot2-template.git gh-pages
+	git clone -b gh-pages git@github.com:huksley/spring-boot2-template.git gh-pages
 fi
 cp -rv target/generated-docs/* gh-pages/
 cd gh-pages
