@@ -1,21 +1,18 @@
 version: 2
 
 jobs:
-  # Build Website
+  # Build documentation
   doc:
     working_directory: ~/docs
     docker:
-    - image: circleci/openjdk:8-node-browsers
+      - image: circleci/openjdk:8-node-browsers
     steps:
-    - checkout
-    - run:
-      - git config --global user.email "circleci@fabric8.io"
-      - git config --global user.name "CircleCI"
-    - run: bash ./mkdocs.sh
-    - save_cache:
-        key: docs-{{ checksum "pom.xml" }}
-        paths:
-        - ~/.m2
+      - checkout
+      - run: bash ./mkdocs.sh
+      - save_cache:
+          key: docs-{{ checksum "pom.xml" }}
+          paths:
+            - ~/.m2
 
 workflows:
   version: 2
