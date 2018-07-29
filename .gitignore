@@ -268,16 +268,10 @@ camunda-h2-dbs
 **/.DS_Store
 .DS_Store
 .vscode
-/model-data/src/main/resources/mapping/DoTransform.bat
 .m2
-/process/src/main/resources/static/open-account/forms/js/**
-/process/src/main/resources/static/open-account/forms/css/**
 
-/model-data/1.docx
-/reference-api/ldap.xlsx
 .env
 .allure
-/process/.testcontainers**
 generated
 /src/main/resources/static/package-lock.json
 .settings
@@ -291,3 +285,5 @@ src/main/resources/frontend/yarn.lock
 
 /h2-dbs.trace.db
 /h2-dbs.mv.db
+1
+2

@@ -103,14 +103,6 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     
     @Autowired
     Environment env;
-
-    @Data
-    public static class LocalUser {
-        private String login;
-        private List<String> roles;
-    }
-
-    LocalUser systemUser;
     
     @EventListener
     public void onApplicationReady(ApplicationReadyEvent ev) {
@@ -121,34 +113,6 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
-    }
-
-    /**
-     * System authentication. Used during system calls, not associated with user.
-     */
-    @Bean
-    @Scope("prototype")
-    public SystemAuthorityProvider getSystemAuthorityProvider() {
-        return new SystemAuthorityProvider() {
-            @Override
-            public Authentication getSystemAuthority(Object invoker) {
-                LocalUser u = systemUser;
-                if (u != null) {
-                    ArrayList<GrantedAuthority> roles = new ArrayList<>();
-                    for (String r: u.getRoles()) {
-                        roles.add(new SimpleGrantedAuthority(ROLE_PREFIX + r));
-                    }
-
-                    // Add role to indicate user trust
-                    roles.add(new SimpleGrantedAuthority(ROLE_AUTH_SYSTEM));
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(u.getLogin(), "[IMPLIED]", roles);
-                    MDC.def().log(log).info("Prepared {} for {}", auth, invoker);
-                    return auth;
-                } else {
-                    throw new IllegalArgumentException("No system authority defined!");
-                }
-            }
-        };
     }
 
     /**
@@ -549,7 +513,10 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 			});
 	}
 
-	static public class ExtendedWebAuthenticationDetails extends WebAuthenticationDetails {
+    /**
+     * Provides {@link HttpServletRequest} instance as {@link Authentication#getDetails()}
+     */
+	public static class ExtendedWebAuthenticationDetails extends WebAuthenticationDetails {
         HttpServletRequest request;
 
 	    public ExtendedWebAuthenticationDetails(HttpServletRequest request) {

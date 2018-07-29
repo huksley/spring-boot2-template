@@ -1,8 +1,6 @@
 package com.github.huksley.app.model;
 
-import java.math.BigDecimal;
 import java.util.Calendar;
-import java.util.Date;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -12,15 +10,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import com.github.huksley.app.BaseEntity;
-import com.github.huksley.app.system.DateTimeDeserializer;
-import com.github.huksley.app.system.DateTimeSerializer;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.Length;
 
 /**

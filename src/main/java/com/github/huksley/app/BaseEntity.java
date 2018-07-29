@@ -2,7 +2,6 @@ package com.github.huksley.app;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -12,7 +11,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -22,10 +20,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.Version;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.github.huksley.app.system.DateTimeDeserializer;
-import com.github.huksley.app.system.DateTimeSerializer;
 
 import lombok.Data;
 
@@ -54,17 +48,17 @@ public abstract class BaseEntity implements Serializable {
     @Column(name = "version")
     @JsonIgnore
     @ApiModelProperty(hidden = true)
-    private Long version = 1L;
+    protected Long version = 1L;
 
     /**
-     * Internal field. Date when the record have been created in database.
+     * Date when the record have been created in database.
      */
     @Column(name = "created")
 	@CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ssZZZ", timezone = "UTC")
     @ApiModelProperty(hidden = true)
-	private Calendar created;
+    protected Calendar created;
 
     /**
      * Date when the record have been updated via JPA.
@@ -74,5 +68,5 @@ public abstract class BaseEntity implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ssZZZ", timezone = "UTC")
     @ApiModelProperty(hidden = true)
-	private Calendar updated;
+    protected Calendar updated;
 }

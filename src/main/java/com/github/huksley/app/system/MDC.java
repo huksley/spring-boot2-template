@@ -11,19 +11,22 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
- * Utility class for mapped diagnostic context.
+ * Utility class for mapped diagnostic context logging.
  * 
- * <code>
+ * <pre>{@code
  * MDC.var("userId", "test_user").log(() -> log.warn("Error accessing resource - denied!"));
  * or
- * MDC.request().security().thread().jvm().log(() -> log.warn("XXXX"));
+ * MDC.request().security().thread().jvm().log(() -> log.warn("Error accessing resource"));
  * or
  * MDC.def().log(logger).info("My message");
- * </code>
+ * }</pre>
  */
 public class MDC {
 	private static String pid;
-	
+
+	/**
+	 * Created on first invocation of every MDC.* method.
+	 */
 	public static class MDCInstance {
 		/**
 		 * Добавляет свободные переменные (сериализуемые в String)
@@ -120,7 +123,7 @@ public class MDC {
 		}
 		
 		/**
-		 * Устанавливает указанные ENV_VARIABLE -> MDC key если они есть в переменных окружения
+		 * Устанавливает указанные ENV_VARIABLE -&gt; MDC key если они есть в переменных окружения
 		 */
 		public MDCInstance env(String... envmap) {
 			for (int i = 0; i < envmap.length; i++) {
@@ -200,7 +203,7 @@ public class MDC {
 	}
 	
 	/**
-	 * Устанавливает указанные ENV_VARIABLE -> MDC key если они есть в переменных окружения
+	 * Устанавливает указанные ENV_VARIABLE -&gt; MDC key если они есть в переменных окружения
 	 */
 	public static MDCInstance env(String... mapenv) {
 		return new MDCInstance().env(mapenv);

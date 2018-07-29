@@ -30,10 +30,20 @@ import io.swagger.annotations.ApiOperation;
 @NoRepositoryBean
 public abstract class CrudControllerBase<T extends BaseEntity> {
     Logger log = LoggerFactory.getLogger(getClass());
-    
-    public abstract JpaRepository<T, String> repo(); 
-    
 
+    /**
+     * Must be overriden to provide JPA repository to access objects.
+     * @return
+     */
+    public abstract JpaRepository<T, String> repo();
+
+
+    /**
+     * /api/[type]/{id}
+     * Gets information about object by {@link BaseEntity#id}
+     * @param id ID of object
+     * @return POJO of object
+     */
     @ApiOperation("Return single object")
     @GetMapping(path = { "/{id}" }, produces = "application/json")
     public T crudFindById(String id) {
@@ -44,13 +54,22 @@ public abstract class CrudControllerBase<T extends BaseEntity> {
             throw new ResourceNotFoundException("id = " + id);
         }
     }
-    
+
+    /**
+     * Returns list of all objects from repo.
+     * @return List
+     */
     @ApiOperation("Return list of all objects")
     @GetMapping(path = { "/list" }, produces = "application/json")
     public List<T> crudFindAll() {
         return repo().findAll().stream().sorted((a,b) -> b.getUpdated().compareTo(a.getUpdated())).collect(Collectors.toList());
     }
-    
+
+    /**
+     * De
+     * @param id
+     * @return
+     */
     @ApiOperation("Delete object by id")
     @DeleteMapping(path = "/{id}", produces = "application/json", consumes = "application/json")
     public Map<String, Object> crudDelete(@PathVariable("id") String id) {
