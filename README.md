@@ -17,6 +17,7 @@ Contains following features:
   * Docker build (mvn package creates docker image) 
   * Docker compose setup with everything (launches redis, postgres, app)
   * JWT based external call/command line compatible auth
+  * Asciidoc & javadoc generation (CircleCI build)
   
 ## Endpoints
 
@@ -26,6 +27,8 @@ Contains following features:
   * Information endpoint (protected) - http://localhost:8087/management/info
   * Health endpoint (unprotected) - http://localhost:8087/management/health
   * UI (react app, dev run) - http://localhost:3000/
+  * Documentation - https://huksley.github.io/spring-boot2-template/
+  * Javadoc - https://huksley.github.io/spring-boot2-template/javadoc/
 
 ## Screenshots
 
