@@ -171,9 +171,9 @@ export default class Login extends Component {
               />
             </div>
             {this.state.error ? (
-              <div className="bg-danger px-2 rounded">{this.state.error}</div>
+              <div className="bg-danger px-2 rounded" id="loginErrorMessage">{this.state.error}</div>
             ) : (
-              <div />
+              <div id="loginErrorMessage"/>
             )}
           </div>
 
@@ -244,12 +244,14 @@ export default class Login extends Component {
           <div className="bg-info clearfix px-2 py-2 rounded-bottom">
             <Button
               className="btn btn-secondary float-left"
+              id="buttonLogin"
               onClick={(e) => this.handleClick(false, e)}>
               <FontAwesomeIcon icon="sign-in-alt" /> Login
             </Button>
             <Button
               tag={RouteLink}
               to="/"
+              id="buttonLoginCancel"
               className="btn btn-danger float-right"
             >
               Cancel

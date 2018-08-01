@@ -1,18 +1,17 @@
 package com.github.huksley.app;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.seleniumhq.selenium.fluent.FluentWebDriver;
+import org.seleniumhq.selenium.fluent.Period;
 import org.seleniumhq.selenium.fluent.monitors.ScreenShotOnError;
 import org.seleniumhq.selenium.fluent.monitors.ScreenShotOnError.WithUnitTestFrameWorkContext;
 import org.slf4j.Logger;
@@ -22,9 +21,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.FileSystemUtils;
+import org.springframework.util.StreamUtils;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
 import static org.seleniumhq.selenium.fluent.Period.secs;
@@ -95,13 +97,57 @@ public class TestSelenium {
     }
 
     @Test
-    public void testApplcation() {
+    public void testApplication() throws IOException, InterruptedException {
         driver.get("http://localhost:" + port);
 
-        // Do logic here
-        if (true) {
-            return;
-        }
+        saveScreenshot("screenshot-landing.png");
+
+        fwd.element(By.id("linkLogin")).click();
+        fwd.within(Period.secs(2)).element(By.id("loginUsername")).sendKeys("test");
+        fwd.element(By.id("loginPassword")).sendKeys("123");
+        saveScreenshot("screenshot-login.png");
+
+        fwd.element(By.id("buttonLogin")).click();
+        // Should dissappear
+        fwd.without(Period.secs(5)).element(By.id("buttonLogin"));
+        // Should appear link to logout
+        fwd.within(Period.secs(5)).element(By.id("linkLogout"));
+        saveScreenshot("screenshot-loggedin.png");
+
+        driver.get("http://localhost:" + port + "/index.html#/todo");
+        fwd.within(Period.secs(5)).element(By.id("inputTodoNewDescription")).sendKeys("Hello, world! This is new todo from selenium! " + System.currentTimeMillis()).sendKeys(Keys.ENTER);
+
+        // Should be at least one entry
+        fwd.within(Period.secs(5)).element(By.id("rowTodo0"));
+
+        // Check it as done
+        fwd.input(By.id("checkboxTodo0")).click();
+
+        // Should be no errors
+        fwd.without(Period.secs(5)).element(By.id("labelTodoError"));
+
+        // New todo prompt should be empty
+        fwd.within(Period.secs(5)).element(By.id("inputTodoNewDescription")).getText().shouldBe("");
+        saveScreenshot("screenshot-todo.png");
+
+        driver.get("http://localhost:" + port + "/management/info");
+        saveScreenshot("screenshot-management-info.png");
+
+        driver.get("http://localhost:" + port + "/management/health");
+        saveScreenshot("screenshot-management-health.png");
+
+        driver.get("http://localhost:" + port + "/api/openapi.json");
+        saveScreenshot("screenshot-openapi-json.png");
+
+        driver.get("http://localhost:" + port + "/swagger-ui.html");
+        // Wait for spec to load
+        fwd.within(Period.secs(10)).element(By.className("base-url"));
+        saveScreenshot("screenshot-swagger-ui.png");
+
+        driver.get("http://localhost:" + port);
+        fwd.within(Period.secs(5)).element(By.id("linkLogout")).click();
+        fwd.within(Period.secs(5)).element(By.id("linkLogin"));
+        saveScreenshot("screenshot-loggedout.png");
 
         try {
             driver.close();
@@ -112,6 +158,14 @@ public class TestSelenium {
             driver.quit();
         } catch (Exception e) {
             // don`t care
+        }
+    }
+
+    private void saveScreenshot(String screenshotFile) throws IOException {
+        String screenshotAs = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BASE64);
+        byte[] decode = Base64.getDecoder().decode(screenshotAs);
+        try (FileOutputStream fos = new FileOutputStream(screenshotFile)) {
+            StreamUtils.copy(decode, fos);
         }
     }
 

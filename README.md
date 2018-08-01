@@ -1,7 +1,7 @@
 # Spring Boot 2 sample application
 
 Opinionated Spring Boot 2 template.
-Contains following functionality:
+Contains following features:
 
   * Java 8 Oracle JDK (base image https://hub.docker.com/r/huksley/oracle-java/)
   * Spring Boot 2 
@@ -25,11 +25,23 @@ Contains following functionality:
   * API OpenSchema - http://localhost:8087/api/openapi.json
   * Information endpoint (protected) - http://localhost:8087/management/info
   * Health endpoint (unprotected) - http://localhost:8087/management/health
-  * UI - http://localhost:8087/
   * UI (react app, dev run) - http://localhost:3000/
-  
-![Screenshots](screenshot.png)
-  
+
+## Screenshots
+
+All screenshots provided here is taken automatically, using Selenium + Geckodriver. 
+See section below __Automatic UI testing__.  
+                                   
+![Landing page](screenshot-landing.png)
+![Login form](screenshot-login.png)
+![After login](screenshot-loggedin.png)
+![Todo example](screenshot-todo.png)
+![Management Health endpoint](screenshot-management-health.png)
+![Management Info endpoint](screenshot-management-info.png)
+![OpenAPI specification](screenshot-openapi-json.png)
+![Swagger UI](screenshot-swagger-ui.png) 
+![After logout](screenshot-loggedout.png)
+ 
 ## Development
 
 Follow these steps for development environment setup:
@@ -77,4 +89,16 @@ docker-compose up -d
 ## Configurable variables
 
 Look for a list of configurable variables in docker-compose.yml
+
+
+## Automatic UI testing
+
+For automatic UI testing we are using Selenium Java and Geckodriver (Firefox).
+For more info about geckodriver see here: https://github.com/mozilla/geckodriver
+
+To run example TestSelenium.java class, provide following environment variables:
+
+  * BROWSER = firefox
+  * BROWSER_BINARY = full path to browser binary (Firefox 52+)
+  * BROWSER_DRIVER = full path to geckodriver (download recent from https://github.com/mozilla/geckodriver)
 

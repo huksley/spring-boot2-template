@@ -71,7 +71,7 @@ class App extends Component {
     return (
       <div>
         <Navbar color="light" light expand="md">
-          <NavbarBrand tag={RouteLink}  to="/">
+          <NavbarBrand tag={RouteLink}  to="/" id="linkBrand">
             <FontAwesomeIcon icon="cogs" />
             &nbsp;
             Sample Web App
@@ -81,8 +81,8 @@ class App extends Component {
             <Nav className="ml-auto" navbar>
               
               { this.authorized() ? 
-                <span><NavLink tag={RouteLink} to="/logout"><FontAwesomeIcon icon="sign-out-alt" /> Logout ({this.state.auth.login})</NavLink></span> :
-                <span><NavLink tag={RouteLink} to="/login"><FontAwesomeIcon icon="sign-in-alt" /> Login</NavLink></span>
+                <span><NavLink tag={RouteLink} to="/logout" id="linkLogout"><FontAwesomeIcon icon="sign-out-alt" /> Logout ({this.state.auth.login})</NavLink></span> :
+                <span><NavLink tag={RouteLink} to="/login" id="linkLogin"><FontAwesomeIcon icon="sign-in-alt" /> Login</NavLink></span>
               }
             </Nav>
           </Collapse>

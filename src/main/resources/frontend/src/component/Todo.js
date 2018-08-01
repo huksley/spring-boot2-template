@@ -128,7 +128,7 @@ export default class Todo extends Component {
     return (
       <div className="container-fluid">
         <h4>List of todos</h4>
-        { this.state.error ? <div className="alert alert-danger">{this.state.error}</div> : ""}
+        { this.state.error ? <div className="alert alert-danger" id="labelTodoError">{this.state.error}</div> : ""}
         <div class="row">
           <div class="col-sm col-md">
             &nbsp;
@@ -139,7 +139,8 @@ export default class Todo extends Component {
 
               <tr>
                   <td></td>
-                  <td><input type="text" style={{width: '100%'}} value={this.state.newTodoDescription} 
+                  <td><input type="text" style={{width: '100%'}} value={this.state.newTodoDescription}
+                    id="inputTodoNewDescription"
                     onChange={(e) => this.handleNewTodo(e)} 
                     onKeyPress={(e) => this.handleNewTodoKey(e)}
                     placeholder="Add new todo"/></td>
@@ -147,8 +148,8 @@ export default class Todo extends Component {
                 </tr>
             {
               this.state.todos.map((t, index) => (
-                <tr key={t.id}>
-                  <td style={{width: '1em'}}><input type="checkbox" checked={t.done} onChange={(e) => this.handleChangeDone(t, index, e)}/></td>
+                <tr key={t.id} id={'rowTodo' + index}>
+                  <td style={{width: '1em'}}><input type="checkbox" id={'checkboxTodo' + index} checked={t.done} onChange={(e) => this.handleChangeDone(t, index, e)}/></td>
                   <td>{t.description}</td>
                   <td style={{width: '1em'}}><Button onClick={(e) => this.handleDelete(t, index, e)}><FontAwesomeIcon icon="trash"/></Button></td>
                 </tr>
