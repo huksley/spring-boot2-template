@@ -93,6 +93,12 @@ docker-compose up -d
 
 Look for a list of configurable variables in docker-compose.yml
 
+## Log streaming
+
+Project includes configuration to send logs to GELF compatible receivers - Fluentd (EFK), Logtstach (ELK), Graylog, etc...
+To activate it, provide -Dlogging.config=classpath:logback-spring-gelf.xml in JAVA_OPTS when starting application.
+
+To distinguish logs from this particular application provide -Dgelf.container=app-name in JAVA_OPTS. This will result in custom field container_name in GELF messages.
 
 ## Automatic UI testing
 
