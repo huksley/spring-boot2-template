@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
@@ -75,8 +76,24 @@ public class TestSystem {
         mock.perform(MockMvcRequestBuilders.get("/api/openapi.json").
                     accept("application/json")).
                 andExpect(MockMvcResultMatchers.status().isOk()).
+                andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8)).
                 andExpect(MockMvcResultMatchers.content().string(Matchers.containsString("\"swagger\":\"2.0\""))).
                 andExpect(MockMvcResultMatchers.content().string(JsonPathMatchers.isJson()));
+    }
+
+    @Test
+    public void testSwaggerAsRequestedByBrowser() throws Exception {
+        // OpenAPI (swagger spec)
+        mock.perform(MockMvcRequestBuilders.get("/api/openapi.json").
+            header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")).
+            andExpect(MockMvcResultMatchers.status().isOk()).
+            /**
+             * This is failing because of
+             * https://github.com/springfox/springfox/issues/1835
+             */
+            // FIXME: andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8)).
+            andExpect(MockMvcResultMatchers.content().string(Matchers.containsString("\"swagger\":\"2.0\""))).
+            andExpect(MockMvcResultMatchers.content().string(JsonPathMatchers.isJson()));
     }
 
     @Test
