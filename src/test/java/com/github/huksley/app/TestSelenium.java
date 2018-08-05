@@ -1,8 +1,6 @@
 package com.github.huksley.app;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -61,10 +59,18 @@ public class TestSelenium {
     @Value("${browser.executable}")
     String browserExecutable;
 
+    /**
+     * Only run all tests if BROWSER=X is set in System.getenv or System.getProperty
+     */
+    @BeforeClass
+    public static void assumeBrowserIsSet() {
+        Assume.assumeTrue(System.getenv("BROWSER") != null || System.getProperty("BROWSER") != null);
+    }
+
     @Before
     public void init() throws Exception {
     	if (driver == null) {
-	        if (browser.equals("firefox")) {
+	        if (browser != null && browser.equals("firefox")) {
 	            DesiredCapabilities capabilities = DesiredCapabilities.firefox();
 	            capabilities.setCapability("marionette", true);
 	            System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE, "true");
@@ -76,7 +82,7 @@ public class TestSelenium {
 	            }
 	            driver = new FirefoxDriver(new FirefoxOptions(capabilities));
 	        } else
-	        if (browser.equals("chrome")) {
+	        if (browser != null && browser.equals("chrome")) {
 	            if (browserDriverPath != null) {
 	            	System.setProperty("webdriver.chrome.driver", browserDriverPath);
 	            }
