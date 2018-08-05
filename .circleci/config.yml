@@ -13,13 +13,26 @@ jobs:
           key: docs-{{ checksum "pom.xml" }}
           paths:
             - ~/.m2
+  build:
+    working_directory: ~/mvnfull
+    docker:
+      - image: circleci/openjdk:8-node-browsers
+    steps:
+      - checkout
+      - run: mvn clean package
+      - save_cache:
+          key: docs-{{ checksum "pom.xml" }}
+          paths:
+            - ~/.m2
+  test:
+    steps:
+      - run: true
 
 workflows:
   version: 2
-  all:
+  build:
     jobs:
-    - doc:
-        filters:
+      - doc:
           branches:
-            only: master
+            only: master  
 
