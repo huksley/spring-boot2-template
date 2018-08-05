@@ -30,10 +30,9 @@ jobs:
 
 workflows:
   version: 2
-  all:
+  build:
     jobs:
-    - doc:
-        filters:
+      - doc:
           branches:
-            only: master
+            only: master  
 
