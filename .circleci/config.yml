@@ -24,9 +24,9 @@ jobs:
           key: docs-{{ checksum "pom.xml" }}
           paths:
             - ~/.m2
-  test:
-    steps:
-      - run: true
+#  test:
+#    steps:
+#      - run: true
 
 workflows:
   version: 2
