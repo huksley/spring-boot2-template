@@ -25,7 +25,13 @@ jobs:
           key: docs-{{ checksum "pom.xml" }}
           paths:
             - ~/.m2
-
+      - store_test_results:
+          path: ~/target/surefire-reports
+      - store_test_results:
+          path: ~/target/surefire
+      - run: 
+          when: on_fail
+          command: find
 workflows:
   version: 2
   build:
