@@ -26,12 +26,14 @@ jobs:
           paths:
             - ~/.m2
       - store_test_results:
-          path: ~/target/surefire-reports
+          path: ~/mvnfull/target/surefire-reports
       - store_test_results:
-          path: ~/target/surefire
+          path: ~/mvnfull/target/surefire
       - run: 
           when: on_fail
-          command: find
+          command: find > ~/mvnfull/all-files.txt
+      - store_test_results:
+          path: ~/mvnfull/all-files.txt
 workflows:
   version: 2
   build:
