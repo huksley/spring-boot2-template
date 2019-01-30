@@ -92,8 +92,8 @@ public class TestSystem {
              * https://github.com/springfox/springfox/issues/1835
              */
             // FIXME: andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8)).
-            andExpect(MockMvcResultMatchers.content().string(Matchers.containsString("\"swagger\":\"2.0\""))).
-            andExpect(MockMvcResultMatchers.content().string(JsonPathMatchers.isJson()));
+            andExpect(MockMvcResultMatchers.content().string(Matchers.containsString("\"swagger\":\"2.0\"")));
+            //andExpect(MockMvcResultMatchers.content().string(JsonPathMatchers.isJson()));
     }
 
     @Test

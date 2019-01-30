@@ -1,7 +1,7 @@
 version: 2
 
 jobs:
-  # Build documentation
+  # Build documentation (javadoc and asciidoc)
   doc:
     working_directory: ~/docs
     docker:
@@ -13,26 +13,40 @@ jobs:
           key: docs-{{ checksum "pom.xml" }}
           paths:
             - ~/.m2
+  # Build and run tests
   build:
     working_directory: ~/mvnfull
     docker:
-      - image: circleci/openjdk:8-node-browsers
+      # https://discuss.circleci.com/t/spring-boot-application-build-failed-due-to-test-failure/27687
+      - image: circleci/openjdk:8u171-jdk-node-browsers
     steps:
       - checkout
-      - run: mvn clean package
+      - run: mvn clean package -Ddocker.skip
       - save_cache:
           key: docs-{{ checksum "pom.xml" }}
           paths:
             - ~/.m2
-  test:
-    steps:
-      - run: true
-
+      - store_artifacts:
+          path: ~/mvnfull/target/surefire-reports
+      - store_artifacts:
+          path: ~/mvnfull/target/surefire
+      - run: 
+          when: on_fail
+          command: find > ~/mvnfull/all-files.txt
+      - store_artifacts:
+          path: ~/mvnfull/all-files.txt
 workflows:
   version: 2
   build:
     jobs:
-      - doc:
-          branches:
-            only: master  
+      # Don`t run build step on gh-pages branch
+      - build:
+          filters:
+            branches:
+              ignore: gh-pages
 
+      # Run documentation build (which pushes to gh-pages) only on master branch
+      - doc:
+          filters:
+            branches:
+              only: master

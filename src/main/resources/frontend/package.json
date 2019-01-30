@@ -44,6 +44,15 @@
     },
     "/auth/login": {
       "target": "http://localhost:8087/"
+    },
+    "/webjars": {
+      "target": "http://localhost:8087/"
+    },
+    "/swagger-ui.html": {
+      "target": "http://localhost:8087/"
+    },
+    "/swagger-resources": {
+      "target": "http://localhost:8087/"
     }
   },
   "scripts": {
