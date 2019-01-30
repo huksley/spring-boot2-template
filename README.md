@@ -92,6 +92,16 @@ mvn package
 docker-compose up -d
 ```
 
+### Production features
+
+  * Sensible spring security configuration (see SecurityConfigurer)
+  * Logging to GELF protocol (see below)
+  * Swagger UI and OpenAPI generation
+  * Basic create-react-app UI and compilation is embedded into maven build
+  * Docker image for app
+  * Docker compose setup for everything
+  * Docker healthchecks enabled for every container
+
 ### Choosing the right Docker java base image
 
 You might experience problems when using alpine based Java images, notable issues are using ulibc, missing fonts and graphics support. Problems might include not working PDF rendering, image operation, etc.
