@@ -28,6 +28,16 @@ export default class Home extends Component {
             <div>Logged in as {this.props.auth.login}! Add some todo! <Button tag={RouteLink} className="btn-primary" to="/todo">Todo</Button></div>
           }
           </div>
+
+          <p>
+            <h4>Other resources</h4>
+            <ul>
+                <li><a href="/swagger-ui.html">Swagger UI</a></li>
+                <li><a href="/api/openapi.json">OpenAPI (Swagger) specification</a></li>
+                <li><a href="/management/info">Management Info (protected)</a></li>
+                <li><a href="/management/health">Management Health (unprotected)</a></li>
+            </ul>
+          </p>
         </div>
       </div>
     );

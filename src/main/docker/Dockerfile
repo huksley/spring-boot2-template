@@ -23,8 +23,15 @@ ENV JAVA_BINARY="/usr/bin/java"
 # Create user
 ARG USERNAME=java
 ARG USERID=1000
-ARG HOME=/tmp
-RUN useradd -m -d $HOME -s /bin/bash $USERNAME
+ARG HOMEDIR=/tmp
+
+# Test for /sbin/apk (Alpine) and run proper command to add user
+RUN if [ -x /sbin/apk ]; then \
+        adduser -D -u $USERID -h $HOMEDIR -s /bin/sh $USERNAME; \
+    else \
+        useradd -m -u $USERID -d $HOMEDIR -s /bin/sh $USERNAME; \
+    fi
+
 USER $USERNAME
 ENV HOME=/tmp
 
