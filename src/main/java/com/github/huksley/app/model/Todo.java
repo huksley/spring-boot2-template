@@ -21,6 +21,8 @@ import org.hibernate.validator.constraints.Length;
  */
 @Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

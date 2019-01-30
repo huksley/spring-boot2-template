@@ -72,9 +72,9 @@ open http://localhost:3000 and it will be automatically reloaded during modifica
 
 ## Additional maven flags
 
-  * -Ddocker.skip=true - skip docker image creation
-  * -Dassembly.skipAssembly=true - don't assemble fat JAR 
-  * -Dmaven.gitcommitid.skip=true - skip git information gathering for /management/info endpoint
+  * -Ddocker.skip - skip docker image creation
+  * -Dassembly.skipAssembly - don't assemble fat JAR 
+  * -Dmaven.gitcommitid.skip - skip git information gathering for /management/info endpoint
   * -DskipTests - skip running tests during build
   * -Dskip.npm -Dskip.yarn - Skip frontend build
   * -Dmaven.git.native=false - Don't use native git (use it if maven-git-commit hangs)

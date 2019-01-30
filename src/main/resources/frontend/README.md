@@ -19,4 +19,4 @@ yarn run start
 ## Dev run
 
 Run this project as ``yarn run start`` together with Java application.
-All API endpoints is proxied from java app.
+All API endpoints is proxied from java app (see package.json)

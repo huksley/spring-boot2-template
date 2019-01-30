@@ -50,6 +50,9 @@
     },
     "/swagger-ui.html": {
       "target": "http://localhost:8087/"
+    },
+    "/swagger-resources": {
+      "target": "http://localhost:8087/"
     }
   },
   "scripts": {
