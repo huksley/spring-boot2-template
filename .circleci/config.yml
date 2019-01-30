@@ -25,14 +25,14 @@ jobs:
           key: docs-{{ checksum "pom.xml" }}
           paths:
             - ~/.m2
-      - store_test_results:
+      - store_artifacts:
           path: ~/mvnfull/target/surefire-reports
-      - store_test_results:
+      - store_artifacts:
           path: ~/mvnfull/target/surefire
       - run: 
           when: on_fail
           command: find > ~/mvnfull/all-files.txt
-      - store_test_results:
+      - store_artifacts:
           path: ~/mvnfull/all-files.txt
 workflows:
   version: 2
