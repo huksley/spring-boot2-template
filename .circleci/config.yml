@@ -1,7 +1,7 @@
 version: 2
 
 jobs:
-  # Build documentation
+  # Build documentation (javadoc and asciidoc)
   doc:
     working_directory: ~/docs
     docker:
@@ -13,6 +13,7 @@ jobs:
           key: docs-{{ checksum "pom.xml" }}
           paths:
             - ~/.m2
+  # Build and run tests
   build:
     working_directory: ~/mvnfull
     docker:
@@ -24,18 +25,18 @@ jobs:
           key: docs-{{ checksum "pom.xml" }}
           paths:
             - ~/.m2
-#  test:
-#    steps:
-#      - run: true
 
 workflows:
   version: 2
   build:
     jobs:
+      # Don`t run build step on gh-pages branch
       - build:
           filters:
             branches:
               ignore: gh-pages
+
+      # Run documentation build (which pushes to gh-pages) only on master branch
       - doc:
           filters:
             branches:
