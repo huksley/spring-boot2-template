@@ -27,7 +27,7 @@ Contains following features:
   * Information endpoint (protected) - http://localhost:8087/management/info
   * Health endpoint (unprotected) - http://localhost:8087/management/health
   * UI (react app, dev run) - http://localhost:3000/
-  * Documentation - https://huksley.github.io/spring-boot2-template/
+  * Documentation (asciidoc) - https://huksley.github.io/spring-boot2-template/
   * Javadoc - https://huksley.github.io/spring-boot2-template/javadoc/
  
 ## Building & Development
