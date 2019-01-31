@@ -1,6 +1,7 @@
 package com.github.huksley.app.system;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +27,8 @@ import org.springframework.core.env.Environment;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 
+import org.springframework.http.MediaType;
+import org.springframework.util.MimeType;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.ApiKey;
@@ -88,7 +91,11 @@ public class SwaggerConfig {
           // Always produce localhost, it will be removed by filter
           .host("localhost");
     }
-    
+
+    public final static String SPRINGFOX_ISSUE_1835_PREFIX = "<Json>";
+    public final static String SPRINGFOX_ISSUE_1835_SUFFIX = "</Json>";
+
+
     @Bean
     public FilterRegistrationBean createApiFilter() {
         FilterRegistrationBean b = new FilterRegistrationBean(new Filter() {
@@ -104,6 +111,28 @@ public class SwaggerConfig {
                 String json = null;
                 try (ByteArrayServletOutputStream s = new ByteArrayServletOutputStream()) {
                     HttpServletResponseWrapper w = new HttpServletResponseWrapper(res) {
+                        @Override
+                        public void setContentType(String type) {
+                        }
+
+                        @Override
+                        public void setHeader(String name, String value) {
+                        }
+
+                        @Override
+                        public void addHeader(String name, String value) {
+                        }
+
+                        @Override
+                        public void flushBuffer() throws IOException {
+                        }
+
+                        @Override
+                        public PrintWriter getWriter() throws IOException {
+                            throw new UnsupportedOperationException("getWriter, use getOutputStream");
+                        }
+
+                        @Override
                         public ServletOutputStream getOutputStream() throws IOException {
                             return s;
                         }
@@ -128,6 +157,16 @@ public class SwaggerConfig {
                 if (behindProxy != null && path != null) {
                     json = json.replace(",\"basePath\":\"/\",", ",\"basePath\":\"" + path + "\",");
                 }
+
+                res.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+
+                if (json.startsWith(SPRINGFOX_ISSUE_1835_PREFIX)) {
+                    json = json.substring(SPRINGFOX_ISSUE_1835_PREFIX.length());
+                }
+
+                if (json.endsWith(SPRINGFOX_ISSUE_1835_SUFFIX)) {
+                    json = json.substring(0, json.length() - SPRINGFOX_ISSUE_1835_SUFFIX.length());
+                }
                 res.getOutputStream().write(json.getBytes("UTF-8"));
             }
 
@@ -147,7 +186,7 @@ public class SwaggerConfig {
             env.getProperty("swagger.version", "0.1"),
             null,
             new springfox.documentation.service.Contact(
-                env.getProperty("swagger.contact", "Example company"), 
+                env.getProperty("swagger.contact", "Example company & friends"),
                 env.getProperty("swagger.contact.url", "https://example.com"), 
                 env.getProperty("swagger.contact.email", "contact@example.com")
             ),
