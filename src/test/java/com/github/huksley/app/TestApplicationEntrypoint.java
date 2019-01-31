@@ -12,10 +12,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *     -Dspring.profiles.active=test
  * </code>
  **/
-@SpringBootApplication
 public class TestApplicationEntrypoint {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TestApplicationEntrypoint.class, args);
+		SpringApplication.run(ApplicationEntrypoint.class, args);
 	}
 }
