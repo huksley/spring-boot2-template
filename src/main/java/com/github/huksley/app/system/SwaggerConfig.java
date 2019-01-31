@@ -1,6 +1,7 @@
 package com.github.huksley.app.system;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -135,7 +136,7 @@ public class SwaggerConfig {
             }
         });
 		b.setName("SwaggerJSONFilter");
-        b.setUrlPatterns(Collections.singleton("/v2/api-docs"));
+        b.setUrlPatterns(Arrays.asList(new String[] { "/v2/api-docs", "/api/openapi.json" }));
         return b;
     }
     
