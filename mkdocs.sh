@@ -15,7 +15,7 @@ cd gh-pages
 git config --global user.email "cicd@ruslan.org"
 git config --global user.name "CICD"
 git add --ignore-errors *
-git commit -m "Updated documentation"
+git commit -m "Updated documentation [skip ci]"
 git push origin gh-pages
 cd ..
 rm -rf gh-pages target
