@@ -35,6 +35,9 @@ jobs:
           command: find > ~/mvnfull/all-files.txt
       - store_artifacts:
           path: ~/mvnfull/all-files.txt
+  test:
+    steps:
+      - run: true
 workflows:
   version: 2
   build:
@@ -47,6 +50,10 @@ workflows:
 
       # Run documentation build (which pushes to gh-pages) only on master branch
       - doc:
+          requires: 
+            - build
           filters:
             branches:
               only: master
+              ignore: gh-pages
+      - test
