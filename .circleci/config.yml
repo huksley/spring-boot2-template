@@ -1,0 +1,18 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/docs
+    docker:
+      - image: circleci/openjdk:8-node-browsers
+    steps:
+      - checkout
+      - run: true
+workflows:
+  version: 2
+  build:
+    jobs:
+      # Don`t run build step on gh-pages branch
+      - build:
+          filters:
+            branches:
+              ignore: gh-pages
