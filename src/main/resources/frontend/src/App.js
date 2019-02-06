@@ -20,6 +20,7 @@ import Login from './component/Login'
 import Logout from './component/Logout'
 import Home from './component/Home'
 import Todo from './component/Todo'
+import Chat from './component/chat/Chat'
 import ProtectedRoute from './component/ProtectedRoute'
 
 library.add(faUser, faCogs, faSignInAlt, faSignOutAlt, faTrash)
@@ -108,6 +109,11 @@ class App extends Component {
 
               { this.authorized() ?
               <ProtectedRoute path="/todo" authorized={this.authorized()} component={Todo} />
+              : <span/> 
+              }
+
+              { this.authorized() ?
+              <ProtectedRoute path="/chat" authorized={this.authorized()} component={Chat} />
               : <span/> 
               }
           </CardBody>

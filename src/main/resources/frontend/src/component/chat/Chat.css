@@ -1,0 +1,4 @@
+.messages .card {
+    height: 12rem;
+    overflow-y: scroll;
+}
