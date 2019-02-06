@@ -17,9 +17,10 @@ class Chat extends Component {
       userName: getRandomName(undefined, true)
     };
 
-    api.open();
-    api.newUser(this.state.userName);
-    api.listenMessage(this.handleMessages);
+    api.open(_ => {
+      api.newUser(this.state.userName);
+      api.listenMessage(this.handleMessages);
+    })
   }
 
   componentDidMount() {

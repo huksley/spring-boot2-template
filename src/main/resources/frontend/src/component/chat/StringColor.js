@@ -15,14 +15,15 @@ function intToRGB(i) {
 }
 
 // for color #FFFFFF make reverse color
-// FIXME: not working 24, 1, 34 -> black???!?
 export function TextColor(c) {
-  let rgb = [ parseInt(c.substring(1, 2), 16), parseInt(c.substring(3, 2), 16), parseInt(c.substring(5, 2), 16) ]
+  let rgb = [c.substring(1, 3), c.substring(3, 5), c.substring(5, 7)];
   let o = Math.round(
-    (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) /
+    (parseInt(rgb[0], 16) * 299 +
+      parseInt(rgb[1], 16) * 587 +
+      parseInt(rgb[2], 16) * 114) /
       1000
   );
-  return o > 150 ? "black" : "white";
+  return o > 125 ? "black" : "white";
 }
 
 export function StringColor(s) {

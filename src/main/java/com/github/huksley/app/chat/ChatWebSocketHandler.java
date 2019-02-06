@@ -27,13 +27,14 @@ public class ChatWebSocketHandler implements WebSocketHandler {
     @Override
     public void handleMessage(WebSocketSession webSocketSession, WebSocketMessage<?> webSocketMessage) {
         log.info("handleMessage = {}", webSocketMessage);
-        users.forEach((s) -> { if (s != webSocketSession)  {
+        users.forEach((s) -> {
             try {
+                log.info("Sending {} to {}", webSocketMessage, s);
                 s.sendMessage(webSocketMessage);
             } catch (IOException e) {
                 log.warn("Failed to send message {} to {}: ", webSocketMessage, s, e);
             }
-        }});
+        });
     }
 
     @Override
