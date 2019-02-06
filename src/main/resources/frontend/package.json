@@ -27,6 +27,10 @@
     "/api": {
       "target": "http://localhost:8087/"
     },
+    "/api/chat/events": {
+      "target": "ws://localhost:8087/",
+      "ws": true
+    },
     "/management": {
       "target": "http://localhost:8087/"
     },
