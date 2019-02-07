@@ -220,7 +220,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
      * Reads token from HTTP request.
      */
     @Bean
-    @ConditionalOnProperty({ "jwt.password", "JWT_PASSWORD" })
+    @ConditionalOnProperty({ "jwt.password" })
     public FilterRegistrationBean createTokenUpdate() {
         String encryptionPassword = env.getProperty("JWT_PASSWORD", env.getProperty("jwt.password"));
 
