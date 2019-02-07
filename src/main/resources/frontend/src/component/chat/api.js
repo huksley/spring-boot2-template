@@ -14,15 +14,16 @@ const WebSocketApi = {
     socket = new WebSocket(config.chatUrl);
     socket.onopen = function() {
       console.log("clientWebSocket.onopen", socket);
-      console.log("clientWebSocket.readyState", "websocketstatus");
       afterOpen();
       if (socketQueue.length > 0) {
         let q = socketQueue;
         socketQueue = [];
         for (let i = 0; i < q.length; i++) {
+          console.log("Send from queue", q[i]);
           socket.send(q[i]);
         }
       }
+      socketConnected = true;
     };
 
     socket.onclose = function(data) {
@@ -34,23 +35,27 @@ const WebSocketApi = {
     };
     socket.onmessage = function(msg) {
       console.log("clientWebSocket.onmessage", socket, msg);
-      let message = JSON.parse(msg.data);
-      if (message) {
-        if (message.type === "message") {
-          if (messageListener !== undefined) {
-            messageListener(message.message);
+      try {
+        let message = JSON.parse(msg.data);
+        if (message) {
+          if (message.type === "message") {
+            if (messageListener !== undefined) {
+              messageListener(message.message);
+            }
+          } else if (message.type === "users") {
+            if (usersListener !== undefined) {
+              usersListener(message.users);
+            }
+          } else if (message.type === "getUsers") {
+            // Multicast ignore
+          } else if (message.type === "newUser") {
+            // Multicast ignore
+          } else {
+            console.warn("Unknown message type: ", message.type);
           }
-        } else if (message.type === "users") {
-          if (usersListener !== undefined) {
-            usersListener(message.users);
-          }
-        } else if (message.type === "getUsers") {
-          // Multicast ignore
-        } else if (message.type === "newUser") {
-          // Multicast ignore
-        } else {
-          console.warn("Unknown message type: ", message.type);
         }
+      } catch (e) {
+        console.warn("Failed to process incoming message", e);
       }
     };
   },
@@ -67,8 +72,10 @@ const WebSocketApi = {
   send: message => {
     console.log("send", message);
     if (socket !== null && socketConnected) {
+      console.log("Sending", message);
       socket.send(JSON.stringify({ type: "message", message: message }));
     } else {
+      console.log("Queueing", message);
       socketQueue.push(JSON.stringify({ type: "message", message: message }));
     }
   },
