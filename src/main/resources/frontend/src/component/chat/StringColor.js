@@ -1,5 +1,8 @@
 // https://stackoverflow.com/questions/3426404/create-a-hexadecimal-colour-based-on-a-string-with-javascript
 function hashCode(str) {
+  if (str === null || str === undefined || str === "") {
+    return -1;
+  }
   // java String#hashCode
   var hash = 0;
   for (var i = 0; i < str.length; i++) {
