@@ -1,5 +1,6 @@
 package com.github.huksley.app.chat;
 
+import com.github.huksley.app.chat.msg.ChatNewUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,16 +23,40 @@ public class ChatWebSocketHandler implements WebSocketHandler {
     }
 
     @Override
-    public void handleMessage(WebSocketSession webSocketSession, WebSocketMessage<?> webSocketMessage) {
+    public void handleMessage(WebSocketSession webSocketSession, WebSocketMessage<?> webSocketMessage) throws IOException {
         log.info("handleMessage = {}", webSocketMessage);
-        users.forEach((s) -> {
-            try {
-                log.info("Sending {} to {}", webSocketMessage, s);
-                s.sendMessage(new TextMessage((String) webSocketMessage.getPayload()));
-            } catch (IOException e) {
-                log.warn("Failed to send message {} to {}: ", webSocketMessage, s, e);
+        if (webSocketMessage instanceof TextMessage) {
+            String json = ((TextMessage) webSocketMessage).getPayload();
+            ChatTransmission t = ChatTransmission.parse(null, json);
+            if (t.type == TransmissionType.message) {
+                // Multicast
+                users.forEach((s) -> {
+                    try {
+                        log.info("Sending {} to {}", webSocketMessage, s);
+                        s.sendMessage(new TextMessage(json));
+                    } catch (IOException e) {
+                        log.warn("Failed to send message {} to {}: ", webSocketMessage, s, e);
+                    }
+                });
+            } else
+            if (t.type == TransmissionType.newUser) {
+                ChatNewUser nu = (ChatNewUser) t;
+                users.setUserName(webSocketSession, nu.getUserName());
+                // FIXME: broadcast list of users to everyone
+            } else
+            if (t.type == TransmissionType.getUsers) {
+                com.github.huksley.app.chat.msg.ChatUsers uu = new com.github.huksley.app.chat.msg.ChatUsers();
+                uu.setUsers(users.getUserNames());
+                String njson = ChatTransmission.serialize(uu);
+                TextMessage n = new TextMessage(json);
+                log.info("Sending {} to {}", n, webSocketSession);
+                webSocketSession.sendMessage(new TextMessage(njson));
+            } else {
+                log.warn("Unhandled message type", t.type);
             }
-        });
+        } else {
+            log.warn("Invalid message class: {}", webSocketMessage);
+        }
     }
 
     @Override
