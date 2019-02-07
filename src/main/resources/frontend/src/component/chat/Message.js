@@ -9,7 +9,7 @@ export const Message = props => {
         <div>
           <Badge color="custom" style={{backgroundColor: StringColor(props.message.userName),  color: TextColor(StringColor(props.message.userName))}}>{props.message.userName}</Badge>{' '}
           <span className="date">{
-            String(props.message.date).split("T")[1].substring(0, 8)
+            props.message.date ? String(props.message.date).split("T")[1].substring(0, 8) : ""
           }</span>
         </div>
         <div>{props.message.message}</div>

@@ -29,7 +29,7 @@ public class ChatWebSocketHandler implements WebSocketHandler {
             String json = ((TextMessage) webSocketMessage).getPayload();
             ChatTransmission t = ChatTransmission.parse(null, json);
             if (t.type == TransmissionType.message) {
-                // Multicast
+                // Multicast to everyone
                 users.forEach((s) -> {
                     try {
                         log.info("Sending {} to {}", webSocketMessage, s);
@@ -42,15 +42,29 @@ public class ChatWebSocketHandler implements WebSocketHandler {
             if (t.type == TransmissionType.newUser) {
                 ChatNewUser nu = (ChatNewUser) t;
                 users.setUserName(webSocketSession, nu.getUserName());
-                // FIXME: broadcast list of users to everyone
-            } else
-            if (t.type == TransmissionType.getUsers) {
+
+                // Send updated list of users to everyone
                 com.github.huksley.app.chat.msg.ChatUsers uu = new com.github.huksley.app.chat.msg.ChatUsers();
                 uu.setUsers(users.getUserNames());
                 String njson = ChatTransmission.serialize(uu);
-                TextMessage n = new TextMessage(json);
+                TextMessage n = new TextMessage(njson);
+                users.forEach((s) -> {
+                    try {
+                        log.info("Sending {} to {}", n, s);
+                        s.sendMessage(new TextMessage(njson));
+                    } catch (IOException e) {
+                        log.warn("Failed to send message {} to {}: ", n, s, e);
+                    }
+                });
+            } else
+            if (t.type == TransmissionType.getUsers) {
+                // Send current list of users to everyone
+                com.github.huksley.app.chat.msg.ChatUsers uu = new com.github.huksley.app.chat.msg.ChatUsers();
+                uu.setUsers(users.getUserNames());
+                String njson = ChatTransmission.serialize(uu);
+                TextMessage n = new TextMessage(njson);
                 log.info("Sending {} to {}", n, webSocketSession);
-                webSocketSession.sendMessage(new TextMessage(njson));
+                webSocketSession.sendMessage(n);
             } else {
                 log.warn("Unhandled message type", t.type);
             }

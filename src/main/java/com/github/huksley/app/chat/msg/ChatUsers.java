@@ -19,7 +19,7 @@ import javax.persistence.Entity;
 @JsonIgnoreProperties(value = { "version", "created", "updated" }, ignoreUnknown = true)
 public class ChatUsers extends ChatTransmission {
     {
-        type = TransmissionType.getUsers;
+        type = TransmissionType.users;
     }
 
     String[] users;

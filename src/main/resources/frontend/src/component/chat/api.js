@@ -40,7 +40,7 @@ const WebSocketApi = {
         if (message) {
           if (message.type === "message") {
             if (messageListener !== undefined) {
-              messageListener(message.message);
+              messageListener(message);
             }
           } else if (message.type === "users") {
             if (usersListener !== undefined) {
@@ -73,10 +73,10 @@ const WebSocketApi = {
     console.log("send", message);
     if (socket !== null && socketConnected) {
       console.log("Sending", message);
-      socket.send(JSON.stringify({ type: "message", message: message }));
+      socket.send(JSON.stringify(Object.assign({}, Object.assign({ type: "message" }, message))));
     } else {
       console.log("Queueing", message);
-      socketQueue.push(JSON.stringify({ type: "message", message: message }));
+      socketQueue.push(JSON.stringify(Object.assign({}, Object.assign({ type: "message" }, message))));
     }
   },
   getUsers: handler => {

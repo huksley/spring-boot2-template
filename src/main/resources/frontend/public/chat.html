@@ -4,7 +4,7 @@
     clientWebSocket.onopen = function() {
         console.log("clientWebSocket.onopen", clientWebSocket);
         console.log("clientWebSocket.readyState", "websocketstatus");
-        clientWebSocket.send("event-me-from-browser");
+        send("Hello, here!");
     }
     clientWebSocket.onclose = function(error) {
         console.log("clientWebSocket.onclose", clientWebSocket, error);
@@ -23,6 +23,10 @@
     }
 
     function send(s) {
-      clientWebSocket.send(s);
+      var json = {
+          type: "message",
+          message: s
+      }
+      clientWebSocket.send(JSON.stringify(json));
     }
 </script>
