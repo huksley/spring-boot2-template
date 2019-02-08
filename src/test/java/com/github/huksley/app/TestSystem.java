@@ -1,5 +1,6 @@
 package com.github.huksley.app;
 
+import com.github.huksley.app.system.SwaggerConfig;
 import com.jayway.jsonpath.matchers.JsonPathMatchers;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -9,7 +10,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -56,6 +56,7 @@ public class TestSystem {
         final MockHttpServletRequestBuilder defaultRequestBuilder = MockMvcRequestBuilders.get("/dummy-path");
         mock = MockMvcBuilders.webAppContextSetup(app).
                 defaultRequest(defaultRequestBuilder).
+                addFilter(new SwaggerConfig.SwaggerFixFilter(app.getEnvironment()), "/api/openapi.json").
                 alwaysDo(result -> setSessionBackOnRequestBuilder(defaultRequestBuilder, result.getRequest())).
                 apply(SecurityMockMvcConfigurers.springSecurity()).build();
     }
@@ -91,9 +92,9 @@ public class TestSystem {
              * This is failing because of
              * https://github.com/springfox/springfox/issues/1835
              */
-            // FIXME: andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8)).
-            andExpect(MockMvcResultMatchers.content().string(Matchers.containsString("\"swagger\":\"2.0\"")));
-            //andExpect(MockMvcResultMatchers.content().string(JsonPathMatchers.isJson()));
+            andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8)).
+            andExpect(MockMvcResultMatchers.content().string(Matchers.containsString("\"swagger\":\"2.0\""))).
+            andExpect(MockMvcResultMatchers.content().string(JsonPathMatchers.isJson()));
     }
 
     @Test
