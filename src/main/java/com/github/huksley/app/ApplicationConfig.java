@@ -1,27 +1,28 @@
 package com.github.huksley.app;
 
+import com.github.huksley.app.system.RedisAvailable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.context.support.ServletRequestHandledEvent;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.util.TimeZone;
 
@@ -34,11 +35,15 @@ import java.util.TimeZone;
 @ComponentScan
 @EnableJpaRepositories
 @EntityScan
+@EnableCaching
 public class ApplicationConfig {
 	Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	protected ApplicationEventPublisher publisher;
+
+	@Autowired
+	protected Environment env;
 
     /**
      * Force using UTC timezone throughout the app.
@@ -67,4 +72,24 @@ public class ApplicationConfig {
     protected void onEvent(ContextClosedEvent ev) {
         log.info("Context stopped {}", ev);
     }
+
+	/**
+	 * Need to configure {@link JdkSerializationRedisSerializer} with classloader because of devtools recompilation.
+	 */
+	@Bean
+	@Conditional(RedisAvailable.class)
+	public RedisCacheConfiguration defaultCacheConfig() {
+		return RedisCacheConfiguration.defaultCacheConfig(getClass().getClassLoader());
+	}
+
+	/**
+	 * Used for @Autowired CacheManager manager.
+	 */
+	@Bean
+	@Conditional(RedisAvailable.class)
+	public CacheManager cacheManager(RedisConnectionFactory cf) {
+		log.info("Creating Redis cache manager");
+		RedisCacheManager cacheManager = RedisCacheManager.builder(cf).cacheDefaults(defaultCacheConfig()).build();
+		return cacheManager;
+	}
 }
