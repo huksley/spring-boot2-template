@@ -4,6 +4,7 @@ import com.github.huksley.app.system.RedisAvailable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.redis.RedisHealthIndicator;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -19,7 +20,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.context.support.ServletRequestHandledEvent;
@@ -73,8 +75,27 @@ public class ApplicationConfig {
         log.info("Context stopped {}", ev);
     }
 
+	@Bean
+	@Conditional(RedisAvailable.class)
+	public RedisConnectionFactory redisConnectionFactory() {
+		RedisStandaloneConfiguration rc = new RedisStandaloneConfiguration();
+		rc.setHostName(env.resolvePlaceholders("${redis.host:localhost}"));
+		rc.setPort(Integer.parseInt(env.resolvePlaceholders("${redis.port:6379}")));
+		JedisConnectionFactory cf = new JedisConnectionFactory(rc);
+		log.info("Establishing connection to {}:{}", cf.getHostName(), cf.getPort());
+		return cf;
+	}
+
+	@Bean
+	@Conditional(RedisAvailable.class)
+	public RedisHealthIndicator getRedisHealth(RedisConnectionFactory cf) {
+		RedisHealthIndicator h = new RedisHealthIndicator(cf);
+		return h;
+	}
+
 	/**
-	 * Need to configure {@link JdkSerializationRedisSerializer} with classloader because of devtools recompilation.
+	 * Need to configure {@link org.springframework.data.redis.serializer.JdkSerializationRedisSerializer}
+	 * with classloader because of devtools recompilation.
 	 */
 	@Bean
 	@Conditional(RedisAvailable.class)
