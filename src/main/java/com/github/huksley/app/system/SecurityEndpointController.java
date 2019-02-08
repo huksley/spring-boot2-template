@@ -1,15 +1,7 @@
 package com.github.huksley.app.system;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.security.Principal;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +17,14 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.security.Principal;
 
 /**
  * Single entry security endpoint.
@@ -90,7 +88,7 @@ public class SecurityEndpointController {
         String accept = request.getHeader("Accept");
         boolean acceptsForm = accept != null && (accept.indexOf("text/*") >= 0 || accept.indexOf("text/html") >= 0 || accept.indexOf("*/*") >= 0);
         String xAuth = request.getHeader("X-Auth-Request");
-        acceptsForm = acceptsForm && ("true".equals(xAuth) || "1".equals(xAuth));
+        acceptsForm = acceptsForm && !("true".equals(xAuth) || "1".equals(xAuth));
         if (!acceptsForm && what == null) {
         	if (auth != null) {
         	    response.sendRedirect("/auth/info");
@@ -211,7 +209,11 @@ public class SecurityEndpointController {
                 	s = new String(StreamUtils.copyToByteArray(is), "UTF-8");
                 }
                 s = s.replace("<title>", "<BASE HREF=\"/auth/forms/user.html\"><title>");
-                out.write(s);
+            	if (s.equals("")) {
+                    out.write("No HTML form defined for <a href=\"/auth/info\">info</a>, <a href=\"/auth/logout\">logout</a>");
+            	} else {
+            	    out.write(s);
+                }
             } else {
                 response.sendRedirect("/auth/login");
             }
@@ -228,20 +230,27 @@ public class SecurityEndpointController {
         		s = new String(StreamUtils.copyToByteArray(is), "UTF-8");
         	}
         	s = s.replace("<title>", "<BASE HREF=\"/auth/login.html\"><title>");
-            out.write(s);
+        	if (s.equals("")) {
+        	    out.write("No HTML form defined for login, <a href=\"/auth/info\">info</a>, <a href=\"/auth/oauth2/google\">oauth2 google</a>, <a href=\"/auth/oauth2/github\">oauth2 github</a>");
+            } else {
+                out.write(s);
+            }
         } else
-        if (acceptsForm && what.equals("token") && auth != null) {
+        if (acceptsForm && what.equals("token")) {
             response.sendRedirect("/auth/");
         } else
         if (!acceptsForm && what.equals("token") && auth != null) {
             response.setContentType("application/javascript");
             response.getWriter().write("{ \"success\": true }");
             response.flushBuffer();
+        } else
+        if (what.startsWith("oauth2/")) {
+            response.sendRedirect("/auth/");
         } else {
             // Unknown, unhandled URL
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not authorized");
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Unknown endpoint (" + what + ")");
             response.setContentType("application/json");
-            response.getWriter().write("{ \"error\": \"Not authorized\" }");
+            response.getWriter().write("{ \"error\": \"Unknown endpoint\" }");
             response.flushBuffer();
         }
     }
