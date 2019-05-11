@@ -240,21 +240,33 @@ export default class Login extends Component {
               <div />
             )}
           </div>
+          <div className="bg-info clearfix px-2 py-2">
+                      <Button
+                        className="btn btn-secondary float-left"
+                        id="buttonLogin"
+                        onClick={(e) => this.handleClick(false, e)}>
+                        <FontAwesomeIcon icon="sign-in-alt" /> Login
+                      </Button>
+                      <Button
+                        tag={RouteLink}
+                        to="/"
+                        id="buttonLoginCancel"
+                        className="btn btn-danger float-right"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
 
           <div className="bg-info clearfix px-2 py-2 rounded-bottom">
             <Button
-              className="btn btn-secondary float-left"
-              id="buttonLogin"
-              onClick={(e) => this.handleClick(false, e)}>
-              <FontAwesomeIcon icon="sign-in-alt" /> Login
+              className="btn btn-primary float-left"
+              onClick={(e) => { window.location = '/oauth2/authorization/google' }}>
+              <FontAwesomeIcon icon="sign-in-alt" /> Login with Google
             </Button>
             <Button
-              tag={RouteLink}
-              to="/"
-              id="buttonLoginCancel"
-              className="btn btn-danger float-right"
-            >
-              Cancel
+              className="btn btn-primary float-right"
+              onClick={(e) => { window.location = '/oauth2/authorization/github' }}>
+              <FontAwesomeIcon icon="sign-in-alt" /> Login with GitHub
             </Button>
           </div>
         </div>

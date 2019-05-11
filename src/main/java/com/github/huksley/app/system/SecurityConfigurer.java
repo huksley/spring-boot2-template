@@ -1,54 +1,25 @@
 package com.github.huksley.app.system;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.Proxy;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.UUID;
-
-import javax.crypto.spec.SecretKeySpec;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.impl.compression.GzipCompressionCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.CredentialsExpiredException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -60,20 +31,22 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.impl.compression.GzipCompressionCodec;
-import lombok.Data;
+import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.*;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.nio.charset.Charset;
+import java.util.*;
 
 /**
  * Setup security and JWT auth.
@@ -435,7 +408,13 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     public void onSuccessLogin(AuthenticationSuccessEvent ev) {
         log.info("Authenticated: {}", ev.getAuthentication());
     }
-    
+
+    @Autowired
+    OAuth2AuthorizedClientService authorizedClientService;
+
+    @Autowired
+    ClientRegistrationRepository clientRegistrationRepository;
+
     /**
      * Protect resources. Permit specific endpoints and deny all the rest.
      */
@@ -475,9 +454,32 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
             
             // Auth flexible endpoint
             http.authorizeRequests().antMatchers("/auth/**").permitAll();
+            http.authorizeRequests().antMatchers("/oauth2/**").permitAll();
+
+            http.authorizeRequests().antMatchers("/login/**").permitAll();
 
             // Deny all the rest
             http.authorizeRequests().anyRequest().denyAll();
+
+            // Enable OAuth2
+            http.authorizeRequests().and().
+                oauth2Login().
+                    //authorizationEndpoint().baseUri("/oauth2/registration").
+                ///and().
+                    //redirectionEndpoint().baseUri("/oauth2/code").
+                //and().
+                    //loginPage("/oauth2/login").
+                    //loginProcessingUrl("/oauth2/code/").
+                successHandler(new AuthenticationSuccessHandler() {
+                    @Override
+                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                        log.info("Success {}, {}, {}", request, response, authentication);
+                    }
+                }).
+                    clientRegistrationRepository(clientRegistrationRepository).
+                    authorizedClientService(authorizedClientService).
+                    defaultSuccessUrl("/auth/success", true);//.
+                    //failureUrl("/auth/login?error=OAuth2");
         }
             
         http.formLogin().loginPage("/auth/login");
