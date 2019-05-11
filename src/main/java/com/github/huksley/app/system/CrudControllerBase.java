@@ -1,18 +1,11 @@
 package com.github.huksley.app.system;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.github.huksley.app.BaseEntity;
+import com.google.common.base.Preconditions;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
@@ -20,9 +13,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import com.google.common.base.Preconditions;
-
-import io.swagger.annotations.ApiOperation;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Simple CRUD API base for REST API
@@ -66,7 +61,7 @@ public abstract class CrudControllerBase<T extends BaseEntity> {
     }
 
     /**
-     * De
+     * Delete object
      * @param id
      * @return
      */

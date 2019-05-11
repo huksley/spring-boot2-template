@@ -1,34 +1,14 @@
 package com.github.huksley.app.system;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
-
+import com.google.common.base.Predicates;
+import com.google.common.collect.Lists;
 import org.apache.catalina.ssi.ByteArrayServletOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-
-import com.google.common.base.Predicates;
-import com.google.common.collect.Lists;
-
 import org.springframework.http.MediaType;
-import org.springframework.util.MimeType;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.ApiKey;
@@ -40,6 +20,16 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.ApiKeyVehicle;
 import springfox.documentation.swagger.web.SecurityConfiguration;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Configures and properly proxies Swagger UI and Swagger JSON.
@@ -95,85 +85,92 @@ public class SwaggerConfig {
     public final static String SPRINGFOX_ISSUE_1835_PREFIX = "<Json>";
     public final static String SPRINGFOX_ISSUE_1835_SUFFIX = "</Json>";
 
+    public static class SwaggerFixFilter implements Filter {
+        private final Environment env;
+
+        public SwaggerFixFilter(Environment env) {
+            this.env = env;
+        }
+
+        @Override
+        public void init(FilterConfig filterConfig) throws ServletException {
+        }
+
+        @Override
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+            HttpServletRequest req = (HttpServletRequest) request;
+            HttpServletResponse res = (HttpServletResponse) response;
+
+            String json = null;
+            try (ByteArrayServletOutputStream s = new ByteArrayServletOutputStream()) {
+                HttpServletResponseWrapper w = new HttpServletResponseWrapper(res) {
+                    @Override
+                    public void setContentType(String type) {
+                    }
+
+                    @Override
+                    public void setHeader(String name, String value) {
+                    }
+
+                    @Override
+                    public void addHeader(String name, String value) {
+                    }
+
+                    @Override
+                    public void flushBuffer() throws IOException {
+                    }
+
+                    @Override
+                    public PrintWriter getWriter() throws IOException {
+                        throw new UnsupportedOperationException("getWriter, use getOutputStream");
+                    }
+
+                    @Override
+                    public ServletOutputStream getOutputStream() throws IOException {
+                        return s;
+                    }
+                };
+                chain.doFilter(request, w);
+                json = new String(s.toByteArray(), "UTF-8");
+            }
+
+            // Change Swagger JSON - remove host
+            json = json.replace(",\"host\":\"localhost\",", ",");
+
+            String behindProxy = req.getHeader("X-Real-IP");
+            if (behindProxy == null) {
+                behindProxy = req.getHeader("X-Forwarded-For");
+            }
+
+            String path = env.getProperty("server.contextPath", "/");
+            String rpath = System.getenv("REAL_CONTEXT_PATH");
+            if (rpath != null) {
+                path = rpath;
+            }
+            if (behindProxy != null && path != null) {
+                json = json.replace(",\"basePath\":\"/\",", ",\"basePath\":\"" + path + "\",");
+            }
+
+            res.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+
+            if (json.startsWith(SPRINGFOX_ISSUE_1835_PREFIX)) {
+                json = json.substring(SPRINGFOX_ISSUE_1835_PREFIX.length());
+            }
+
+            if (json.endsWith(SPRINGFOX_ISSUE_1835_SUFFIX)) {
+                json = json.substring(0, json.length() - SPRINGFOX_ISSUE_1835_SUFFIX.length());
+            }
+            res.getOutputStream().write(json.getBytes("UTF-8"));
+        }
+
+        @Override
+        public void destroy() {
+        }
+    }
 
     @Bean
     public FilterRegistrationBean createApiFilter() {
-        FilterRegistrationBean b = new FilterRegistrationBean(new Filter() {
-            @Override
-            public void init(FilterConfig filterConfig) throws ServletException {
-            }
-
-            @Override
-            public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-                HttpServletRequest req = (HttpServletRequest) request;
-                HttpServletResponse res = (HttpServletResponse) response;
-
-                String json = null;
-                try (ByteArrayServletOutputStream s = new ByteArrayServletOutputStream()) {
-                    HttpServletResponseWrapper w = new HttpServletResponseWrapper(res) {
-                        @Override
-                        public void setContentType(String type) {
-                        }
-
-                        @Override
-                        public void setHeader(String name, String value) {
-                        }
-
-                        @Override
-                        public void addHeader(String name, String value) {
-                        }
-
-                        @Override
-                        public void flushBuffer() throws IOException {
-                        }
-
-                        @Override
-                        public PrintWriter getWriter() throws IOException {
-                            throw new UnsupportedOperationException("getWriter, use getOutputStream");
-                        }
-
-                        @Override
-                        public ServletOutputStream getOutputStream() throws IOException {
-                            return s;
-                        }
-                    };
-                    chain.doFilter(request, w);
-                    json = new String(s.toByteArray(), "UTF-8");
-                }
-
-                // Change Swagger JSON - remove host
-                json = json.replace(",\"host\":\"localhost\",", ",");
-                
-                String behindProxy = req.getHeader("X-Real-IP");
-                if (behindProxy == null) {
-                    behindProxy = req.getHeader("X-Forwarded-For");
-                }
-                
-                String path = env.getProperty("server.contextPath", "/");
-                String rpath = System.getenv("REAL_CONTEXT_PATH");
-                if (rpath != null) {
-                    path = rpath;
-                }
-                if (behindProxy != null && path != null) {
-                    json = json.replace(",\"basePath\":\"/\",", ",\"basePath\":\"" + path + "\",");
-                }
-
-                res.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-
-                if (json.startsWith(SPRINGFOX_ISSUE_1835_PREFIX)) {
-                    json = json.substring(SPRINGFOX_ISSUE_1835_PREFIX.length());
-                }
-
-                if (json.endsWith(SPRINGFOX_ISSUE_1835_SUFFIX)) {
-                    json = json.substring(0, json.length() - SPRINGFOX_ISSUE_1835_SUFFIX.length());
-                }
-                res.getOutputStream().write(json.getBytes("UTF-8"));
-            }
-
-            @Override
-            public void destroy() {
-            }
-        });
+        FilterRegistrationBean b = new FilterRegistrationBean(new SwaggerFixFilter(env));
 		b.setName("SwaggerJSONFilter");
         b.setUrlPatterns(Arrays.asList(new String[] { "/v2/api-docs", "/api/openapi.json" }));
         return b;

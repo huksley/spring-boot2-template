@@ -3,18 +3,21 @@ package com.github.huksley.app.api;
 import com.github.huksley.app.jpa.TodoRepository;
 import com.github.huksley.app.model.Todo;
 import com.github.huksley.app.system.CrudControllerBase;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-import io.swagger.annotations.Api;
-
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -29,10 +32,36 @@ public class TodoController extends CrudControllerBase<Todo> {
 
     @Autowired
     TodoRepository repo;
+
+    @Autowired(required = false)
+    CacheManager cache;
     
     @Override
     public JpaRepository<Todo, String> repo() {
         return repo;
+    }
+
+    @Cacheable(cacheNames = "todo", key = "#p0")
+    @Override
+    @ApiOperation("Return single object")
+    @GetMapping(path = { "/{id}" }, produces = "application/json")
+    public Todo crudFindById(String id) {
+        log.info("Get Todo by id: {}", id);
+        return super.crudFindById(id);
+    }
+
+    @CacheEvict(cacheNames = "todo", key = "#p0")
+    @ApiOperation("Update object")
+    @PatchMapping(path = "/{id}", produces = "application/json", consumes = "application/json")
+    public Todo crudUpdate(@PathVariable("id") String id, @RequestBody Todo update) {
+        return super.crudUpdate(id, update);
+    }
+
+    @CacheEvict(cacheNames = "todo", key = "#p0")
+    @ApiOperation("Delete object by id")
+    @DeleteMapping(path = "/{id}", produces = "application/json", consumes = "application/json")
+    public Map<String, Object> crudDelete(@PathVariable("id") String id) {
+        return super.crudDelete(id);
     }
 
     /**
