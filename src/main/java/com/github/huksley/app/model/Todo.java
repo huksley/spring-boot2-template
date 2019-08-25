@@ -1,20 +1,17 @@
 package com.github.huksley.app.model;
 
-import java.util.Calendar;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-
 import com.github.huksley.app.BaseEntity;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Calendar;
 
 /**
  * Todo model and entity
@@ -30,7 +27,6 @@ import org.hibernate.validator.constraints.Length;
 @JsonInclude(Include.NON_EMPTY)
 @JsonIgnoreProperties(value = { "version", "created", "updated" }, ignoreUnknown = true)
 @XmlRootElement(namespace = "http://github.io/xml/myapp/todo")
-@JacksonXmlRootElement(namespace = "http://github.io/myapp/todo")
 public class Todo extends BaseEntity {
 
     /**
