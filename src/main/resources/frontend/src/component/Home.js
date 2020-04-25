@@ -25,7 +25,10 @@ export default class Home extends Component {
           { !this.props.authorized ? 
             <div>Login now using <b>username</b>: <code>test</code>, <b>password</b>: <code>123</code></div>
             :
-            <div>Logged in as {this.props.auth.login}! Add some todo! <Button tag={RouteLink} className="btn-primary" to="/todo">Todo</Button></div>
+            <div>Logged in as {this.props.auth.login}! 
+            Add some todo! <Button tag={RouteLink} className="btn-primary" to="/todo">Todo</Button>
+            Start chat! <Button tag={RouteLink} className="btn-primary" to="/chat">Todo</Button>
+            </div>
           }
           </div>
 
